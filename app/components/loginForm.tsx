@@ -1,6 +1,5 @@
 // components/LoginForm.tsx
-'use client'; // This ensures it's rendered client-side
-
+'use client';
 import { useState } from 'react';
 
 const LoginForm = () => {
