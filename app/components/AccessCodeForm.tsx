@@ -1,12 +1,11 @@
-// components/LoginForm.tsx
+// components/AccessCodeForm.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'
 
-const LoginForm = () => {
-  const [username, setUsername] = useState('');
-  const [oneTimePassword, setOneTimePassword] = useState('');
+const AccessCodeForm = () => {
+  const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -15,8 +14,8 @@ const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!username || !oneTimePassword) {
-      setError('Please fill out both fields');
+    if (!accessCode) {
+      setError('Please fill in access code');
       return;
     }
 
@@ -24,18 +23,18 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/pairwise/login', {
+      const response = await fetch('http://localhost:4000/pairwise/verify-access-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, oneTimePassword }),
+        body: JSON.stringify({ accessCode }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        router.push('/access-code');
+        router.push('/');
 
       } else {
         setError(data.message || 'An error occurred. Please try again.');
@@ -49,28 +48,16 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+    <p className="pb-6">Check your email for an access code to login to PairWise.</p>
       <div className="mb-4">
-        <label htmlFor="username" className="block text-sm font-medium text-black">Username:</label>
+        <label htmlFor="access-code" className="block text-sm font-medium text-black">Access Code</label>
         <input
           type="text"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          id="access-code"
+          value={accessCode}
+          onChange={(e) => setAccessCode(e.target.value)}
           className="w-full p-2 border border-black rounded mt-1 focus:outline-none focus:ring-2 focus:ring-black"
-          placeholder="Enter your username"
-          required
-        />
-      </div>
-
-      <div className="mb-6">
-        <label htmlFor="oneTimePassword" className="block text-sm font-medium text-black">One Time Password:</label>
-        <input
-          type="password"
-          id="oneTimePassword"
-          value={oneTimePassword}
-          onChange={(e) => setOneTimePassword(e.target.value)}
-          className="w-full p-2 border border-black rounded mt-1 focus:outline-none focus:ring-2 focus:ring-black"
-          placeholder="Enter your password"
+          placeholder="Enter access code"
           required
         />
       </div>
@@ -82,10 +69,10 @@ const LoginForm = () => {
         className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
         disabled={loading}
       >
-        {loading ? 'Logging in...' : 'Log In'}
+        {loading ? 'Confirming Access Code...' : 'Confirm Code'}
       </button>
     </form>
   );
 };
 
-export default LoginForm;
+export default AccessCodeForm;

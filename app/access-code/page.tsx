@@ -1,19 +1,20 @@
 // app/login/page.tsx
+import AccessCodeForm from '@/app/components/AccessCodeForm';
 import Box from '@/app/components/Box';
-import LoginForm from '@/app/components/LoginForm';
 import Navbar from '@/app/components/Navbar';
 
-export default function LoginPage() {
+export default function AccessCodePage() {
   const sections = [
     {
       title: "PairWise Login",
-      children: <LoginForm />
+      children: <AccessCodeForm />
     }
-  ]
+  ];
   return (
     <div>
       <Navbar />
-      <Box sections={sections}/>
+      <Box sections={sections}>
+      </Box>
     </div>
   );
 }
