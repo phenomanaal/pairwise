@@ -46,6 +46,7 @@ const UploadForm = () => {
       if (response.ok) {
         setMsg('Upload Complete.');
         setMsgType('success');
+        // TODO: adjust form to allow for more file uploads of external data files
       } else {
         const data = await response.json();
         setMsg(data.message || 'An error occurred. Please try again.');
@@ -62,7 +63,7 @@ const UploadForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      // TODO: have the state field be filled in based on user profile.
+      {/* TODO: have the state field be filled in based on user profile. */}
       <p className="pb-6">Please provide a current voter file for Fallaron.</p>
 
       <div className="mb-4">
