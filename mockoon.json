@@ -1,0 +1,300 @@
+{
+    "uuid": "5ecad306-f453-46aa-b465-273a5ebac987",
+    "lastMigration": 33,
+    "name": "PairWise API",
+    "endpointPrefix": "pairwise",
+    "latency": 0,
+    "port": 4000,
+    "hostname": "",
+    "folders": [],
+    "routes": [
+        {
+            "uuid": "8ca9c72c-be95-4037-aca9-c5172fb3e569",
+            "type": "http",
+            "documentation": "Generate random body (JSON, text, CSV, etc) with templating",
+            "method": "get",
+            "endpoint": "template",
+            "responses": [
+                {
+                    "uuid": "426a4c55-e51c-4074-975b-b99c93a79bfa",
+                    "body": "{\n  \"Templating example\": \"For more information about templating, click the blue 'i' above this editor\",\n  \"users\": [\n    {{# repeat (queryParam 'total' '10') }}\n      {\n        \"userId\": \"{{ faker 'number.int' min=10000 max=100000 }}\",\n        \"firstname\": \"{{ faker 'person.firstName' }}\",\n        \"lastname\": \"{{ faker 'person.lastName' }}\",\n        \"friends\": [\n          {{# repeat (faker 'number.int' 5) }}\n            {\n              \"id\": \"{{ faker 'string.uuid' }}\"\n            }\n          {{/ repeat }}\n        ]\n      },\n    {{/ repeat }}\n  ],\n  \"total\": \"{{queryParam 'total' '10'}}\"\n}",
+                    "latency": 0,
+                    "statusCode": 200,
+                    "label": "Creates 10 random users, or the amount specified in the 'total' query param",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": false,
+                    "crudKey": "id",
+                    "callbacks": []
+                }
+            ],
+            "responseMode": null,
+            "streamingMode": null,
+            "streamingInterval": 0
+        },
+        {
+            "uuid": "e22ef81a-636b-47a2-8176-e122cddb8c4d",
+            "type": "http",
+            "documentation": "",
+            "method": "post",
+            "endpoint": "login",
+            "responses": [
+                {
+                    "uuid": "7222f9c7-fe75-42f4-86cc-cb1a182d4ecc",
+                    "body": "{\n  \"status\": \"success\",\n  \"message\": \"TOTP Verified. Check your email for the access code.\",\n  \"next_step\": \"access_code\",\n  \"access_code_expiry\": \"10 minutes\"\n}",
+                    "latency": 0,
+                    "statusCode": 200,
+                    "label": "",
+                    "headers": [
+                        {
+                            "key": "Set-Cookie",
+                            "value": "session-id=pairwise-totp-session-id; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900;"
+                        }
+                    ],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [
+                        {
+                            "target": "body",
+                            "modifier": "username",
+                            "value": "validUser",
+                            "invert": false,
+                            "operator": "equals"
+                        },
+                        {
+                            "target": "body",
+                            "modifier": "oneTimePassword",
+                            "value": "123456",
+                            "invert": false,
+                            "operator": "equals"
+                        }
+                    ],
+                    "rulesOperator": "AND",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": false,
+                    "crudKey": "id",
+                    "callbacks": []
+                },
+                {
+                    "uuid": "07c5cfe8-094a-4056-b84b-f0f988f29259",
+                    "body": "{\n  \"message\": \"Invalid credentials.\"\n}",
+                    "latency": 0,
+                    "statusCode": 401,
+                    "label": "",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": true,
+                    "crudKey": "id",
+                    "callbacks": []
+                }
+            ],
+            "responseMode": null,
+            "streamingMode": null,
+            "streamingInterval": 0
+        },
+        {
+            "uuid": "9a044b00-5ecc-4c82-8469-f9bbff7dc8b7",
+            "type": "http",
+            "documentation": "",
+            "method": "post",
+            "endpoint": "verify-access-code",
+            "responses": [
+                {
+                    "uuid": "c7d9449c-a7d5-4031-b307-2964f69df4e0",
+                    "body": "{\n  \"status\": \"success\",\n  \"message\": \"Access code verified successfully.\",\n  \"next_step\": \"authenticated\",\n  \"session_expiry\": \"60 minutes\"\n}",
+                    "latency": 0,
+                    "statusCode": 200,
+                    "label": "",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [
+                        {
+                            "target": "body",
+                            "modifier": "accessCode",
+                            "value": "098765",
+                            "invert": false,
+                            "operator": "equals"
+                        }
+                    ],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": false,
+                    "crudKey": "id",
+                    "callbacks": []
+                },
+                {
+                    "uuid": "31fb196e-69a8-4d75-bf73-7d547fb20e31",
+                    "body": "{\n  \"status\": \"error\",\n  \"message\": \"Invalid access code. Please try again.\",\n  \"next_step\": \"retry\"\n}\n",
+                    "latency": 0,
+                    "statusCode": 401,
+                    "label": "",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": true,
+                    "crudKey": "id",
+                    "callbacks": []
+                }
+            ],
+            "responseMode": null,
+            "streamingMode": null,
+            "streamingInterval": 0
+        },
+        {
+            "uuid": "74df2a30-4e8a-405b-8bb3-8d821ebc0e20",
+            "type": "http",
+            "documentation": "",
+            "method": "post",
+            "endpoint": "upload",
+            "responses": [
+                {
+                    "uuid": "a1ef8a24-93d0-4dbf-b9d2-5ac881c10dd1",
+                    "body": "{\n  \"status\": \"success\",\n  \"message\": \"File uploaded.\"\n}",
+                    "latency": 0,
+                    "statusCode": 200,
+                    "label": "",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [
+                        {
+                            "target": "body",
+                            "modifier": "file.mimetype",
+                            "value": "text/csv",
+                            "invert": false,
+                            "operator": "equals"
+                        }
+                    ],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": false,
+                    "crudKey": "id",
+                    "callbacks": []
+                },
+                {
+                    "uuid": "01672971-6fc7-4a94-87ab-b943879d5405",
+                    "body": "{\n  \"status\": \"failed\",\n  \"message\": \"Invalid file type. Only csv files are allowed.\"\n}",
+                    "latency": 0,
+                    "statusCode": 400,
+                    "label": "",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": true,
+                    "crudKey": "id",
+                    "callbacks": []
+                }
+            ],
+            "responseMode": null,
+            "streamingMode": null,
+            "streamingInterval": 0
+        }
+    ],
+    "rootChildren": [
+        {
+            "type": "route",
+            "uuid": "8ca9c72c-be95-4037-aca9-c5172fb3e569"
+        },
+        {
+            "type": "route",
+            "uuid": "e22ef81a-636b-47a2-8176-e122cddb8c4d"
+        },
+        {
+            "type": "route",
+            "uuid": "9a044b00-5ecc-4c82-8469-f9bbff7dc8b7"
+        },
+        {
+            "type": "route",
+            "uuid": "74df2a30-4e8a-405b-8bb3-8d821ebc0e20"
+        }
+    ],
+    "proxyMode": false,
+    "proxyHost": "",
+    "proxyRemovePrefix": false,
+    "tlsOptions": {
+        "enabled": false,
+        "type": "CERT",
+        "pfxPath": "",
+        "certPath": "",
+        "keyPath": "",
+        "caPath": "",
+        "passphrase": ""
+    },
+    "cors": true,
+    "headers": [
+        {
+            "key": "Content-Type",
+            "value": "application/json"
+        },
+        {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+        },
+        {
+            "key": "Access-Control-Allow-Methods",
+            "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+        },
+        {
+            "key": "Access-Control-Allow-Headers",
+            "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+        }
+    ],
+    "proxyReqHeaders": [
+        {
+            "key": "",
+            "value": ""
+        }
+    ],
+    "proxyResHeaders": [
+        {
+            "key": "",
+            "value": ""
+        }
+    ],
+    "data": [
+        {
+            "uuid": "f561fb07-11c9-4b17-8229-09a1d6b17dec",
+            "id": "k82x",
+            "name": "Users",
+            "documentation": "",
+            "value": "[\n  {{#repeat 50}}\n  {\n    \"id\": \"{{faker 'string.uuid'}}\",\n    \"username\": \"{{faker 'internet.userName'}}\"\n  }\n  {{/repeat}}\n]"
+        }
+    ],
+    "callbacks": []
+}
