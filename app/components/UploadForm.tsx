@@ -8,14 +8,14 @@ const UploadForm = () => {
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState<'success' | 'error' | ''>('');
   const [loading, setLoading] = useState(false);
-  //onst router = useRouter();
+  //const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
-      setMsg('');  // Clear any previous msg
-      setMsgType('');  // Clear message type
+      setMsg('');
+      setMsgType('');
     }
   };
 
@@ -62,7 +62,8 @@ const UploadForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <p className="pb-6">Please provide a current voter file for __state__.</p>
+      // TODO: have the state field be filled in based on user profile.
+      <p className="pb-6">Please provide a current voter file for Fallaron.</p>
 
       <div className="mb-4">
         <div className="flex items-center gap-4 mt-1">
