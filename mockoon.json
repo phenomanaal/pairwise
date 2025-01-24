@@ -252,14 +252,6 @@
             "value": ""
         }
     ],
-    "data": [
-        {
-            "uuid": "f561fb07-11c9-4b17-8229-09a1d6b17dec",
-            "id": "k82x",
-            "name": "Users",
-            "documentation": "",
-            "value": "[\n  {{#repeat 50}}\n  {\n    \"id\": \"{{faker 'string.uuid'}}\",\n    \"username\": \"{{faker 'internet.userName'}}\"\n  }\n  {{/repeat}}\n]"
-        }
-    ],
+    "data": [],
     "callbacks": []
 }
