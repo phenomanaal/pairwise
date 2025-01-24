@@ -4,7 +4,25 @@ This is a project created for OSET, using Next.js, Tailwind & TypeScript.
 
 ## API Mocking
 
-Currently the code is calling a mock api that users can host locally using Mockoon desktop (free). A `mockoon.json` file has been provided for configuration.
+Currently the code is calling a mock api that users can host locally using Mockoon desktop or CLI (free). A `mockoon.json` file has been provided for configuration.
+
+Install the `mockoon-cli` application here: [Mockoon CLI](https://mockoon.com/cli/)
+
+## Running In Development
+
+To run the application:
+
+```bash
+npm run dev
+```
+
+To run the mockoon server to mock API calls:
+```bash
+mockoon-cli start --data mockoon.json
+```
+This runs on port 4000, to change this edit the `mockoon.json` file.
+
+With both those running go to `localhost:3000/login` (or whichever port you choose to run node on ) to preview the application.
 
 ## Resources
 
