@@ -9,37 +9,6 @@
     "folders": [],
     "routes": [
         {
-            "uuid": "8ca9c72c-be95-4037-aca9-c5172fb3e569",
-            "type": "http",
-            "documentation": "Generate random body (JSON, text, CSV, etc) with templating",
-            "method": "get",
-            "endpoint": "template",
-            "responses": [
-                {
-                    "uuid": "426a4c55-e51c-4074-975b-b99c93a79bfa",
-                    "body": "{\n  \"Templating example\": \"For more information about templating, click the blue 'i' above this editor\",\n  \"users\": [\n    {{# repeat (queryParam 'total' '10') }}\n      {\n        \"userId\": \"{{ faker 'number.int' min=10000 max=100000 }}\",\n        \"firstname\": \"{{ faker 'person.firstName' }}\",\n        \"lastname\": \"{{ faker 'person.lastName' }}\",\n        \"friends\": [\n          {{# repeat (faker 'number.int' 5) }}\n            {\n              \"id\": \"{{ faker 'string.uuid' }}\"\n            }\n          {{/ repeat }}\n        ]\n      },\n    {{/ repeat }}\n  ],\n  \"total\": \"{{queryParam 'total' '10'}}\"\n}",
-                    "latency": 0,
-                    "statusCode": 200,
-                    "label": "Creates 10 random users, or the amount specified in the 'total' query param",
-                    "headers": [],
-                    "bodyType": "INLINE",
-                    "filePath": "",
-                    "databucketID": "",
-                    "sendFileAsBody": false,
-                    "rules": [],
-                    "rulesOperator": "OR",
-                    "disableTemplating": false,
-                    "fallbackTo404": false,
-                    "default": false,
-                    "crudKey": "id",
-                    "callbacks": []
-                }
-            ],
-            "responseMode": null,
-            "streamingMode": null,
-            "streamingInterval": 0
-        },
-        {
             "uuid": "e22ef81a-636b-47a2-8176-e122cddb8c4d",
             "type": "http",
             "documentation": "",
@@ -227,10 +196,6 @@
         }
     ],
     "rootChildren": [
-        {
-            "type": "route",
-            "uuid": "8ca9c72c-be95-4037-aca9-c5172fb3e569"
-        },
         {
             "type": "route",
             "uuid": "e22ef81a-636b-47a2-8176-e122cddb8c4d"
