@@ -13,24 +13,40 @@ Install the `mockoon-cli` application here: [Mockoon CLI](https://mockoon.com/cl
 To run the application:
 
 ```bash
-npm run dev
+./start.sh
 ```
 
-To run the mockoon server to mock API calls:
+This script runs the following in one command:
+
 ```bash
 mockoon-cli start --data mockoon.json
 ```
-This runs on port 4000, to change this edit the `mockoon.json` file.
 
-With both those running go to `localhost:3000/login` (or whichever port you choose to run node on ) to preview the application.
+This runs a mock server on port 4000, to change this edit the `mockoon.json` file.
+
+Then it starts the application:
+
+```bash
+pnpm run dev
+```
+
+if you don't have `pnpm`, it will run the following:
+
+```bash
+npm run dev
+```
+
+When the script is running go to `localhost:3000/login` (or whichever port you choose to run node on) to preview the application.
 
 ## Resources
 
 #### Internal
+
 - [pairwise conops & workflow](https://docs.google.com/document/d/1JIL2kQANz_pyP2Z-YCqlTyn5595EyPsQnsGMst7a39o/edit?usp=sharing)
 - [wireframes](https://www.figma.com/design/25k6fBGSBYl8rezSaTsyB9/PairWise-Wireframes?node-id=1015170-1451&t=wcGBJeYdb9x7uQe5-1)
 
 #### External
+
 - [next.js documentation](https://nextjs.org/docs)
 - [react documentation](https://react.dev/reference/react)
 - [tailwind documentation](https://tailwindcss.com/docs)
