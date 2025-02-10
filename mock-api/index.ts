@@ -131,8 +131,8 @@ server.post('/pairwise/file', async (request: FastifyRequest, reply: FastifyRepl
     if (part.type == "field" && part.fieldname == "fileType") {
       fileType  = part.value
     }
-  }                
-
+  }
+  
 });
 
 server.listen({ port: 3001, host: '0.0.0.0' }, (err, address) => {
