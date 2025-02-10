@@ -23,7 +23,7 @@ const AccessCodeForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/pairwise/verify-access-code', {
+      const response = await fetch('http://localhost:3001/pairwise/verify-access-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ const AccessCodeForm = () => {
       } else {
         setError(data.message || 'An error occurred. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

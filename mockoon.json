@@ -141,7 +141,7 @@
       "type": "http",
       "documentation": "",
       "method": "post",
-      "endpoint": "upload",
+      "endpoint": "file",
       "responses": [
         {
           "uuid": "60ca47d5-2fc7-4fd6-9b6c-25e54a6fe29a",
@@ -193,6 +193,64 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "dde8a8e5-2eb8-463d-af01-1561a04604f6",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "file",
+      "responses": [
+        {
+          "uuid": "4fc83cf1-a5f2-4df3-a44f-6edc09203e5e",
+          "body": "{\n  \"voterFile\": \"test.csv\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "stage",
+              "value": "voter",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "2584eebc-eea6-4ae6-88cd-5e29dab49d9e",
+          "body": "{\n  \"status\": \"failed\",\n  \"message\": \"Invalid file type. Only csv files are allowed.\"\n}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -207,6 +265,10 @@
     {
       "type": "route",
       "uuid": "90d45784-4768-4c22-93d7-f3db306ea975"
+    },
+    {
+      "type": "route",
+      "uuid": "dde8a8e5-2eb8-463d-af01-1561a04604f6"
     }
   ],
   "proxyMode": false,
