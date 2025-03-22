@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo "Replacing data.json in mock-api folder with an empty array..."
-echo "[ ]" > mock-api/data.json
+
 
 echo "Creating empty test CSV files..."
 
@@ -23,6 +22,9 @@ API_SERVER_PID=$!
 cleanup() {
     echo "Stopping API server (PID: $API_SERVER_PID)..."
     kill $API_SERVER_PID
+
+    echo "Replacing data.json in mock-api folder with an empty array..."
+    echo "[ ]" > mock-api/data.json
     
     echo "Cleaning up test CSV files..."
     rm -f test-voter-file.csv

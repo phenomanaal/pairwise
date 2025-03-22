@@ -1,63 +1,64 @@
-// components/LoginForm.tsx
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import FormInput from './ui/FormInput';
 import Button from './ui/Button';
 import ErrorMessage from './ui/ErrorMessage';
 import AccessCodeForm from './AccessCodeForm';
+import { useAuth } from '@/app/hooks/useAuth'
+
 
 const LoginForm = () => {
-  // Step tracking
   const [currentStep, setCurrentStep] = useState<'credentials' | 'accessCode'>('credentials');
-  
-  // Form fields
   const [username, setUsername] = useState('');
   const [oneTimePassword, setOneTimePassword] = useState('');
-  
-  // Status states
-  const [loading, setLoading] = useState(false);
+  const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { login, verifyAccessCode } = useAuth();
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      setError('');
+
+      try {
+        const success = await login(username, oneTimePassword);
+        if (success) {
+          setCurrentStep('accessCode');
+        } else {
+          setError('Invalid credentials');
+        }
+      } catch (err) {
+        setError('An unexpected error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+  // Handle going back to credentials step
+  const handleBack = () => {
+    setCurrentStep('credentials');
+  };
+
+  const handleAccessCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!username || !oneTimePassword) {
-      setError('Please fill out both fields');
-      return;
-    }
-
-    setError('');
     setLoading(true);
+    setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/pairwise/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, oneTimePassword }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Move to access code step
-        setCurrentStep('accessCode');
-        setError('');
+      const success = await verifyAccessCode(accessCode);
+      if (success) {
+        router.push('/');
       } else {
-        setError(data.message || 'An error occurred. Please try again.');
+        setError('Invalid access code');
       }
-    } catch (error) {
+    } catch (err) {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
-  };
-
-  // Handle going back to credentials step
-  const handleBack = () => {
-    setCurrentStep('credentials');
   };
 
   // Render the credentials form (first step)

@@ -2,6 +2,7 @@
 import Box from '@/app/components/Box';
 import CurrentFilesList from '@/app/components/CurrentFilesList';
 import Navbar from '@/app/components/Navbar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 export default function MatchFilePage() {
   const sections = [
@@ -11,9 +12,11 @@ export default function MatchFilePage() {
     }
   ]
   return (
-    <div>
-      <Navbar />
-      <Box sections={sections}/>
-    </div>
+    <ProtectedRoute>
+      <div>
+        <Navbar />
+        <Box sections={sections}/>
+      </div>
+    </ProtectedRoute>    
   );
 }

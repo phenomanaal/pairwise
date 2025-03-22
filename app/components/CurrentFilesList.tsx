@@ -98,7 +98,7 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
     const fetchFiles = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3001/pairwise/files');
+        const response = await fetch('http://localhost:3001/pairwise/files', {credentials: 'include'});
         
         if (!response.ok) {
           throw new Error(`Server responded with status ${response.status}`);

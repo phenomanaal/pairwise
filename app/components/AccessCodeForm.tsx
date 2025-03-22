@@ -35,6 +35,7 @@ const AccessCodeForm = ({ redirectPath = '/access-code' }: AccessCodeFormProps) 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ accessCode }),
+        credentials: 'include'
       });
 
       const data = await response.json();

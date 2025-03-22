@@ -1,12 +1,1 @@
-[
-  {
-    "fileType": "voter",
-    "externalFileType": null,
-    "fileName": "test-voter-file.csv"
-  },
-  {
-    "fileType": "external",
-    "externalFileType": "state-dept-corrections-felons-list",
-    "fileName": "test-external-file-1.csv"
-  }
-]
+[ ]

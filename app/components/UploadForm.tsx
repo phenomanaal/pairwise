@@ -73,6 +73,7 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
       const response = await fetch('http://localhost:3001/pairwise/file', {
         method: 'POST',
         body: formData,
+        credentials: 'include'
       });
 
       if (response.ok) {

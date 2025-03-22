@@ -1,10 +1,16 @@
-// app/login/page.tsx
+'use client';
+
+
 import Box from '@/app/components/Box';
 import UploadForm from '@/app/components/UploadForm';
 import WelcomeChecklist from '@/app/components/WelcomeChecklist';
 import Navbar from '@/app/components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+
 
 export default function HomePage() {
+
+
   const sections = [
     {
       title: 'Welcome to PairWise',
@@ -14,12 +20,15 @@ export default function HomePage() {
       title: "Upload Voter File",
       children: <UploadForm fileType={"voter"}/>
     }
-  ]
+  ];
+
+
   return (
-    <div>
-      <Navbar />
-      <Box sections={sections}/>
-    </div>
+    <ProtectedRoute>
+      <div>
+        <Navbar />
+        <Box sections={sections} />
+      </div>
+    </ProtectedRoute>
   );
 }
-

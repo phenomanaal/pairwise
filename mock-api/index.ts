@@ -1,10 +1,32 @@
 import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import fastifyCors from '@fastify/cors';
 import { fastifyMultipart } from '@fastify/multipart';
-
+import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
 import * as fs from 'fs';
 
+// Define types for plugin augmentation
+declare module 'fastify' {
+  interface FastifyInstance {
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+  }
+}
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    payload: { username: string, role: string }
+    user: {
+      username: string,
+      role: string
+    }
+  }
+}
+
 const DATA_FILE = './data.json'
+const validUsername = 'validUser';
+const validOtp = '123456';
+const validAccessCode = '098765';
+const server = fastify({ logger: true });
 
 interface FormData {
   fileType: string;
@@ -24,6 +46,13 @@ interface FileData {
   fileType: string;
   externalFileType: string | null;
   fileName: string;
+}
+interface AccessCodePayload {
+  accessCode: string;
+}
+interface LoginPayload {
+  username: string;
+  oneTimePassword: string;
 }
 
 const readJsonFile = (filePath: string): JsonData => {
@@ -59,38 +88,45 @@ const writeExternalFile = (
   writeJsonFile(filePath, jsonData);
 };
 
-const server = fastify({ logger: true });
+// Register JWT
+server.register(fastifyJwt, {
+  secret: 'mock-super-secret-key-change-in-production',
+  cookie: {
+    cookieName: 'pairwise_token',
+    signed: false
+  }
+});
 
+// Register CORS
 server.register(fastifyCors, {
   origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true // Important for cookies
 });
-server.register(fastifyMultipart)
 
-interface LoginPayload {
-  username: string;
-  oneTimePassword: string;
-}
+server.register(fastifyMultipart);
+server.register(fastifyCookie);
 
-interface AccessCodePayload {
-  accessCode: string;
-}
+// Create authentication decorator after plugins are registered
+server.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    await request.jwtVerify();
+  } catch (err) {
+    reply.status(401).send({ message: 'Unauthorized' });
+  }
+});
 
-const validUsername = 'validUser';
-const validOtp = '123456';
-const validAccessCode = '098765';
-
+// Update your login endpoint
 server.post('/pairwise/login', async (request: FastifyRequest, reply: FastifyReply) => {
-  const { username, oneTimePassword }: LoginPayload = request.body as LoginPayload;
-
+  const { username, oneTimePassword } = request.body as { username: string, oneTimePassword: string };
 
   if (username === validUsername && oneTimePassword === validOtp) {
     return reply.status(200).send({
-        status: "success",
-        message: "TOTP Verified. Check your email for the access code.",
-        next_step: "access_code",
-        access_code_expiry: "10 minutes"
-      });
+      status: "success",
+      message: "TOTP Verified. Check your email for the access code.",
+      next_step: "access_code",
+      access_code_expiry: "10 minutes"
+    });
   }
 
   return reply.status(401).send({
@@ -99,15 +135,33 @@ server.post('/pairwise/login', async (request: FastifyRequest, reply: FastifyRep
 });
 
 server.post('/pairwise/verify-access-code', async (request: FastifyRequest, reply: FastifyReply) => {
-  const { accessCode }: AccessCodePayload = request.body as AccessCodePayload;
+  const { accessCode } = request.body as { accessCode: string };
 
+  if (accessCode === validAccessCode) {
+    // Create a token with user information
+    const token = server.jwt.sign(
+      { 
+        username: validUsername,
+        role: 'user'
+      }, 
+      { 
+        expiresIn: '1h' 
+      }
+    );
 
-  if (accessCode == validAccessCode) {
+    // Set cookie with the token
+    reply.setCookie('pairwise_token', token, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 3600 // 1 hour in seconds
+    });
+
     return reply.status(200).send({
       status: "success",
       message: "Access code verified successfully.",
       next_step: "authenticated",
-      session_expiry: "60 minutes"
+      token: token
     });
   }
 
@@ -119,8 +173,9 @@ server.post('/pairwise/verify-access-code', async (request: FastifyRequest, repl
 });
 
 
-
-server.post('/pairwise/file', async (request: FastifyRequest, reply: FastifyReply) => {
+server.post('/pairwise/file', {
+  preHandler: server.authenticate
+}, async (request: FastifyRequest, reply: FastifyReply) => {
   const parts = request.parts();
   let fileName: string = '';
   let fileType: string = '';
@@ -201,14 +256,10 @@ server.post('/pairwise/file', async (request: FastifyRequest, reply: FastifyRepl
   }
 });
 
-server.get('/pairwise/files', async (request: FastifyRequest, reply: FastifyReply) => {
+server.get('/pairwise/files', {
+  preHandler: server.authenticate
+}, async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    interface FileData {
-      fileType: string;
-      externalFileType: string | null;
-      fileName: string;
-    }
-    
     let fileData: FileData[] = [];
     
     try {
@@ -236,6 +287,23 @@ server.get('/pairwise/files', async (request: FastifyRequest, reply: FastifyRepl
     });
   }
 });
+
+// Add a logout endpoint
+server.post('/pairwise/logout', async (request: FastifyRequest, reply: FastifyReply) => {
+  reply.clearCookie('pairwise_token', { path: '/' });
+  return reply.status(200).send({ message: 'Logged out successfully' });
+});
+
+server.get('/pairwise/auth-check', {
+  preHandler: server.authenticate
+}, async (request: FastifyRequest, reply: FastifyReply) => {
+  return reply.status(200).send({ 
+    authenticated: true,
+    user: request.user
+  });
+});
+
+
 
 server.listen({ port: 3001, host: '0.0.0.0' }, (err, address) => {
   if (err) {

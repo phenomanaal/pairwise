@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^10.0.2",
+    "@fastify/jwt": "^9.1.0",
     "@fastify/multipart": "^9.0.3",
     "fastify": "^5.2.1",
     "next": "15.1.6",
