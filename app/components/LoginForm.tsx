@@ -24,7 +24,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/pairwise/login', {
+      const response = await fetch('http://localhost:3001/pairwise/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const LoginForm = () => {
       } else {
         setError(data.message || 'An error occurred. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
