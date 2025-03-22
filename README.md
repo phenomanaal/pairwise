@@ -38,6 +38,12 @@ npm run dev
 
 When the script is running go to `localhost:3000/login` (or whichever port you choose to run node on) to preview the application.
 
+## testing login
+
+username: validUser
+OTP: 123456
+access code: 098675
+
 ## Resources
 
 #### Internal
