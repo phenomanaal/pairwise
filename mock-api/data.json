@@ -1,9 +1,12 @@
-{
-  "voterFile": "test.csv",
-  "externalFiles": [
-    {
-      "fileType": null,
-      "fileName": null
-    }
-  ]
-}
+[
+  {
+    "fileType": "voter",
+    "externalFileType": null,
+    "fileName": "test-voter-file.csv"
+  },
+  {
+    "fileType": "external",
+    "externalFileType": "state-dept-corrections-felons-list",
+    "fileName": "test-external-file-2.csv"
+  }
+]

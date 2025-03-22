@@ -1,20 +1,36 @@
 #!/bin/bash
 
-# Start mockoon-cli in the background
-echo "Starting mockoon-cli with mockoon.json..."
-mockoon-cli start --data mockoon.json &
+echo "Replacing data.json in mock-api folder with an empty array..."
+echo "[ ]" > mock-api/data.json
 
-# Store the process ID of mockoon-cli
-MOCKOON_PID=$!
+echo "Creating empty test CSV files..."
 
-# Function to stop mockoon-cli when the script exits
+create_empty_file() {
+    local filename=$1
+    echo "Creating empty $filename..."
+    touch "$filename"
+}
+
+create_empty_file "test-voter-file.csv"
+create_empty_file "test-external-file-1.csv"
+create_empty_file "test-external-file-2.csv"
+
+echo "Starting API server in mock-api directory..."
+(cd mock-api && npx nodemon --exec ts-node index.ts) &
+
+API_SERVER_PID=$!
+
 cleanup() {
-    echo "Stopping mockoon-cli (PID: $MOCKOON_PID)..."
-    kill $MOCKOON_PID
+    echo "Stopping API server (PID: $API_SERVER_PID)..."
+    kill $API_SERVER_PID
+    
+    echo "Cleaning up test CSV files..."
+    rm -f test-voter-file.csv
+    rm -f test-external-file-1.csv
+    rm -f test-external-file-2.csv
 }
 trap cleanup EXIT
 
-# Check if pnpm is installed and run dev command
 if command -v pnpm &> /dev/null; then
     echo "pnpm is available. Running 'pnpm run dev'..."
     pnpm run dev
