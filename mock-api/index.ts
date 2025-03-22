@@ -20,6 +20,12 @@ interface JsonData {
   voterFile: string;
 }
 
+interface FileData {
+  fileType: string;
+  externalFileType: string | null;
+  fileName: string;
+}
+
 const readJsonFile = (filePath: string): JsonData => {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   return JSON.parse(fileContent);
@@ -112,11 +118,7 @@ server.post('/pairwise/verify-access-code', async (request: FastifyRequest, repl
   });
 });
 
-interface FileData {
-  fileType: string;
-  externalFileType: string | null;
-  fileName: string;
-}
+
 
 server.post('/pairwise/file', async (request: FastifyRequest, reply: FastifyReply) => {
   const parts = request.parts();
