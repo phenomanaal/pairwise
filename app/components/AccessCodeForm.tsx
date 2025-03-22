@@ -2,14 +2,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import FormInput from './ui/FormInput';
+import Button from './ui/Button';
+import ErrorMessage from './ui/ErrorMessage';
 
-const AccessCodeForm = () => {
+interface AccessCodeFormProps {
+  redirectPath?: string; // Add this to make the redirect path configurable
+}
+
+const AccessCodeForm = ({ redirectPath = '/access-code' }: AccessCodeFormProps) => {
   const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +40,7 @@ const AccessCodeForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        router.push('/');
-
+        router.push(redirectPath);
       } else {
         setError(data.message || 'An error occurred. Please try again.');
       }
@@ -48,29 +53,26 @@ const AccessCodeForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-    <p className="pb-6">Check your email for an access code to login to PairWise.</p>
-      <div className="mb-4">
-        <label htmlFor="access-code" className="block text-sm font-medium text-black">Access Code</label>
-        <input
-          type="text"
-          id="access-code"
-          value={accessCode}
-          onChange={(e) => setAccessCode(e.target.value)}
-          className="w-full p-2 border border-black rounded mt-1 focus:outline-none focus:ring-2 focus:ring-black"
-          placeholder="Enter access code"
-          required
-        />
-      </div>
+      <p className="pb-6">Check your email for an access code to login to PairWise.</p>
+      
+      <FormInput
+        id="access-code"
+        label="Access Code"
+        value={accessCode}
+        onChange={(e) => setAccessCode(e.target.value)}
+        placeholder="Enter access code"
+        required
+      />
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      <ErrorMessage message={error} />
 
-      <button
+      <Button
         type="submit"
-        className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
         disabled={loading}
+        fullWidth
       >
         {loading ? 'Confirming Access Code...' : 'Confirm Code'}
-      </button>
+      </Button>
     </form>
   );
 };

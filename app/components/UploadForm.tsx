@@ -1,40 +1,46 @@
-'use client';  // Ensure this is a client-side component
+// components/UploadForm.tsx
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Button from './ui/Button';
+import ErrorMessage from './ui/ErrorMessage';
+import FileSelect from './ui/FileSelect';
+import ConfirmationDialog from './ui/ConfirmationDialog';
 
-const UploadForm = ({fileType}) => {
+const externalFileTypes = [
+  { value: 'state-dept-corrections-felons-list', label: 'State Department of Corrections Felons List' },
+  { value: 'dept-of-vital-stats-deceased-list', label: 'Department of Vital Statistics Deceased Persons List' },
+  { value: 'change-of-address-record', label: 'Change of Address Record' },
+  { value: 'other-voter-file', label: 'Other State Voter File' }
+];
+
+interface UploadFormProps {
+  fileType: string;
+}
+
+const UploadForm = ({ fileType }: UploadFormProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState<'success' | 'error' | ''>('');
   const [loading, setLoading] = useState(false);
   const [externalFileType, setExternalFileType] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const router = useRouter();
 
-  const [showConfirmation, setShowConfirmation] = useState(false);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setMsg('');
-      setMsgType('');
-    }
-  };
-
-  const handleExternalFileTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setExternalFileType(e.target.value);
+  const handleFileChange = (selectedFile: File) => {
+    setFile(selectedFile);
+    setMsg('');
+    setMsgType('');
   };
 
   const handleFinishUploading = () => {
-    // Show confirmation dialog
     setShowConfirmation(true);
   };
 
   const handleConfirmation = (confirmed: boolean) => {
     setShowConfirmation(false);
     if (confirmed) {
-      // Redirect to the match-file page if confirmed
       router.push('/match-files');
     }
   };
@@ -46,89 +52,73 @@ const UploadForm = ({fileType}) => {
       setMsg('Please select a file to upload');
       setMsgType('error');
       return;
-    } else if (msgType == "success") {
+    } else if (msgType === "success") {
       router.push('/external-file')
-    } else {
-      setMsg('');
-      setMsgType('');
-      setLoading(true);
-  
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileType', fileType);
-      
-      if (fileType === "external" && externalFileType) {
-        formData.append('externalFileType', externalFileType);
-      }
-  
-      try {
-        const response = await fetch('http://localhost:3001/pairwise/file', {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (response.ok) {
-          setMsg('Upload Complete.');
-          setMsgType('success');
-          
-          // Maintain the original behavior - route to /external-file on success
-          if (fileType !== "external") {
-            router.push('/external-file');
-          }
-        } else {
-          const data = await response.json();
-          setMsg(data.message || 'An error occurred. Please try again.');
-          setMsgType('error');
+      return;
+    }
+
+    setMsg('');
+    setMsgType('');
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileType', fileType);
+    
+    if (fileType === "external" && externalFileType) {
+      formData.append('externalFileType', externalFileType);
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/pairwise/file', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        setMsg('Upload Complete.');
+        setMsgType('success');
+        
+        if (fileType !== "external") {
+          router.push('/external-file');
         }
-      } catch (error) {
-        console.log(error);
-        setMsg('An unexpected error occurred');
+      } else {
+        const data = await response.json();
+        setMsg(data.message || 'An error occurred. Please try again.');
         setMsgType('error');
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.log(error);
+      setMsg('An unexpected error occurred');
+      setMsgType('error');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* TODO: have the state field be filled in based on user profile. */}
       <p className="pb-6">Please provide a current {fileType} file for Fallaron.</p>
 
       <div className="mb-4">
-        {fileType == "external" && (
+        {fileType === "external" && (
           <select
             id="externalFileType"
             value={externalFileType}
-            onChange={handleExternalFileTypeChange}
-            className="w-full font-sans text-base py-2 px-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4">
-              <option value="" disabled>Select Data Type</option>
-              <option value="state-dept-corrections-felons-list">State Department of Corrections Felons List</option>
-              <option value="dept-of-vital-stats-deceased-list">Department of Vital Statistics Deceased Persons List</option>
-              <option value="change-of-address-record">Change of Address Record</option>
-              <option value="other-voter-file">Other State Voter File</option>
+            onChange={(e) => setExternalFileType(e.target.value)}
+            className="w-full font-sans text-base py-2 px-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+          >
+            <option value="" disabled>Select Data Type</option>
+            {externalFileTypes.map(type => (
+              <option key={type.value} value={type.value}>{type.label}</option>
+            ))}
           </select>
         )}
         
-        <div className="flex items-center gap-4 mt-1">
-          <button
-            type="button"
-            onClick={() => document.getElementById('file')?.click()}
-            className="py-2 px-4 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
-          >
-            Choose File
-          </button>
-
-          <input
-            id="file"
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <input id="fileType" type="text" className="hidden" value={fileType} readOnly/>
-          
-          <span className="text-sm text-gray-500">{file ? file.name : 'No file selected'}</span>
-        </div>
+        <FileSelect 
+          onFileChange={handleFileChange}
+          selectedFileName={file?.name || null}
+        />
       </div>
 
       {msg && (
@@ -142,47 +132,30 @@ const UploadForm = ({fileType}) => {
       )}
 
       <div className="flex flex-col gap-4">
-        <button
+        <Button
           type="submit"
-          className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
           disabled={loading}
+          fullWidth
         >
           {loading ? 'Uploading...' : 'Submit File'}
-        </button>
+        </Button>
         
         {fileType === "external" && (
-          <button
-            type="button"
+          <Button
             onClick={handleFinishUploading}
-            className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
-            >
+            fullWidth
+          >
             Finished Uploading External Files
-          </button>
+          </Button>
         )}
       </div>
 
-      {/* Confirmation Dialog */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-            <h3 className="text-lg font-medium mb-4">Are you ready to begin matching?</h3>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => handleConfirmation(false)}
-                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-              >
-                No
-              </button>
-              <button
-                onClick={() => handleConfirmation(true)}
-                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationDialog 
+        isOpen={showConfirmation}
+        title="Are you ready to begin matching?"
+        onConfirm={() => handleConfirmation(true)}
+        onCancel={() => handleConfirmation(false)}
+      />
     </form>
   );
 };

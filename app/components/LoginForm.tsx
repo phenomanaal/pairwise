@@ -2,17 +2,24 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'
+import FormInput from './ui/FormInput';
+import Button from './ui/Button';
+import ErrorMessage from './ui/ErrorMessage';
+import AccessCodeForm from './AccessCodeForm';
 
 const LoginForm = () => {
+  // Step tracking
+  const [currentStep, setCurrentStep] = useState<'credentials' | 'accessCode'>('credentials');
+  
+  // Form fields
   const [username, setUsername] = useState('');
   const [oneTimePassword, setOneTimePassword] = useState('');
-  const [error, setError] = useState('');
+  
+  // Status states
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState('');
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username || !oneTimePassword) {
@@ -35,56 +42,77 @@ const LoginForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        router.push('/access-code');
-
+        // Move to access code step
+        setCurrentStep('accessCode');
+        setError('');
       } else {
         setError(data.message || 'An error occurred. Please try again.');
       }
-    } catch {
+    } catch (error) {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <div className="mb-4">
-        <label htmlFor="username" className="block text-sm font-medium text-black">Username:</label>
-        <input
-          type="text"
+  // Handle going back to credentials step
+  const handleBack = () => {
+    setCurrentStep('credentials');
+  };
+
+  // Render the credentials form (first step)
+  if (currentStep === 'credentials') {
+    return (
+      <form onSubmit={handleCredentialsSubmit}>
+        <FormInput
           id="username"
+          label="Username:"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-2 border border-black rounded mt-1 focus:outline-none focus:ring-2 focus:ring-black"
           placeholder="Enter your username"
           required
         />
-      </div>
 
-      <div className="mb-6">
-        <label htmlFor="oneTimePassword" className="block text-sm font-medium text-black">One Time Password:</label>
-        <input
-          type="password"
+        <FormInput
           id="oneTimePassword"
+          label="One Time Password:"
+          type="password"
           value={oneTimePassword}
           onChange={(e) => setOneTimePassword(e.target.value)}
-          className="w-full p-2 border border-black rounded mt-1 focus:outline-none focus:ring-2 focus:ring-black"
           placeholder="Enter your password"
           required
         />
+
+        <ErrorMessage message={error} />
+
+        <Button
+          type="submit"
+          disabled={loading}
+          fullWidth
+        >
+          {loading ? 'Verifying...' : 'Continue'}
+        </Button>
+      </form>
+    );
+  }
+
+  // For the second step, use the existing AccessCodeForm but with some modifications
+  return (
+    <div>
+      <AccessCodeForm redirectPath="/" />
+      
+      {/* Add back button */}
+      <div className="mt-4">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleBack}
+          fullWidth
+        >
+          Back
+        </Button>
       </div>
-
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-      <button
-        type="submit"
-        className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
-        disabled={loading}
-      >
-        {loading ? 'Logging in...' : 'Log In'}
-      </button>
-    </form>
+    </div>
   );
 };
 

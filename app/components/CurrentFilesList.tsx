@@ -1,6 +1,10 @@
-'use client';  // Ensure this is a client-side component
+// components/CurrentFilesList.tsx
+'use client';
 
 import { useState, useEffect } from 'react';
+import Button from './ui/Button';
+import ProcessingPopup from './ui/ProcessingPopup';
+import SuccessPopup from './ui/SuccessPopup';
 
 interface FileData {
   fileType: string;
@@ -9,11 +13,80 @@ interface FileData {
   matchingStatus?: 'pending' | 'active' | 'completed';
 }
 
-interface Props {
+interface FileListItemProps {
+  file: FileData;
+  isMatching: boolean;
+  onBeginMatching: () => void;
+}
+
+const FileListItem = ({ file, isMatching, onBeginMatching }: FileListItemProps) => {
+  const getExternalFileTypeDisplay = (type: string | null): string => {
+    if (!type) return '';
+    
+    const typeMap: {[key: string]: string} = {
+      'state-dept-corrections-felons-list': 'State Department of Corrections Felons List',
+      'dept-of-vital-stats-deceased-list': 'Department of Vital Statistics Deceased Persons List',
+      'change-of-address-record': 'Change of Address Record',
+      'other-voter-file': 'Other State Voter File'
+    };
+    
+    return typeMap[type] || type;
+  };
+
+  const renderMatchingControls = () => {
+    if (!isMatching) return null;
+    
+    switch (file.matchingStatus) {
+      case 'active':
+        return (
+          <Button 
+            onClick={onBeginMatching}
+            className="ml-4"
+          >
+            Begin Matching
+          </Button>
+        );
+      case 'completed':
+        return (
+          <div className="ml-4 flex items-center">
+            <span className="text-green-600 font-semibold mr-3">Completed</span>
+            <Button>
+              Results Overview
+            </Button>
+          </div>
+        );
+      case 'pending':
+        return (
+          <Button 
+            variant="disabled"
+            className="ml-4"
+          >
+            Begin Matching
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <li className="flex items-center">
+      <span className="text-gray-700">
+        {file.fileType === 'voter' ? 'Voter File: ' : 
+         file.fileType === 'external' ? `External (${getExternalFileTypeDisplay(file.externalFileType)}): ` :
+         `${file.fileType}: `}
+      </span>
+      <span className="ml-2 italic text-gray-600">{file.fileName}</span>
+      {renderMatchingControls()}
+    </li>
+  );
+};
+
+interface CurrentFilesListProps {
   matching?: boolean;
 }
 
-const CurrentFilesList = ({ matching = false }: Props) => {
+const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +106,6 @@ const CurrentFilesList = ({ matching = false }: Props) => {
         
         const data = await response.json();
         
-        // If matching is enabled, add matching status to files
         if (matching) {
           const filesWithStatus = data.map((file: FileData, index: number) => ({
             ...file,
@@ -56,22 +128,10 @@ const CurrentFilesList = ({ matching = false }: Props) => {
     fetchFiles();
   }, [matching]);
 
-  const getExternalFileTypeDisplay = (type: string | null): string => {
-    if (!type) return '';
-    
-    const typeMap: {[key: string]: string} = {
-      'state-dept-corrections-felons-list': 'State Department of Corrections Felons List',
-      'dept-of-vital-stats-deceased-list': 'Department of Vital Statistics Deceased Persons List',
-      'change-of-address-record': 'Change of Address Record',
-      'other-voter-file': 'Other State Voter File'
-    };
-    
-    return typeMap[type] || type;
-  };
-
   const handleBeginMatching = () => {
     setIsProcessing(true);
     
+    // Simulate processing time
     setTimeout(() => {
       setIsProcessing(false);
       setShowSuccessPopup(true);
@@ -93,44 +153,6 @@ const CurrentFilesList = ({ matching = false }: Props) => {
     setFiles(updatedFiles);
   };
 
-  const renderMatchingControls = (file: FileData, index: number) => {
-    if (!matching) return null;
-    
-    switch (file.matchingStatus) {
-      case 'active':
-        return (
-          <button 
-            onClick={handleBeginMatching}
-            className="ml-4 px-3 py-1 bg-black text-white rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-          >
-            Begin Matching
-          </button>
-        );
-      case 'completed':
-        return (
-          <div className="ml-4 flex items-center">
-            <span className="text-green-600 font-semibold mr-3">Completed</span>
-            <button 
-              className="px-3 py-1 bg-gray-600 outline-black text-white rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-            >
-              Results Overview
-            </button>
-          </div>
-        );
-      case 'pending':
-        return (
-          <button 
-            disabled
-            className="ml-4 px-3 py-1 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
-          >
-            Begin Matching
-          </button>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="relative">
       <p>You uploaded the following files successfully:</p>
@@ -146,49 +168,28 @@ const CurrentFilesList = ({ matching = false }: Props) => {
       {!loading && !error && files.length > 0 && (
         <ul className="space-y-4 pt-5 text-sm">
           {files.map((file, index) => (
-            <li key={index} className="flex items-center">
-              <span className="text-gray-700">
-                {file.fileType === 'voter' ? 'Voter File: ' : 
-                 file.fileType === 'external' ? `External (${getExternalFileTypeDisplay(file.externalFileType)}): ` :
-                 `${file.fileType}: `}
-              </span>
-              <span className="ml-2 italic text-gray-600">{file.fileName}</span>
-              {renderMatchingControls(file, index)}
-            </li>
+            <FileListItem 
+              key={index}
+              file={file}
+              isMatching={matching}
+              onBeginMatching={handleBeginMatching}
+            />
           ))}
         </ul>
       )}
       
-      {/* Processing Popup */}
-      {isProcessing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h3 className="text-lg font-medium mb-4">Processing</h3>
-            <p className="mb-4">Matching files in progress...</p>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gray-500 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProcessingPopup 
+        isOpen={isProcessing}
+        title="Processing"
+        message="Matching files in progress..."
+      />
       
-      {/* Success Popup */}
-      {showSuccessPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h3 className="text-lg font-medium mb-4">Matching Complete</h3>
-            <p className="mb-6">The matching process has completed successfully.</p>
-            <div className="flex justify-end">
-              <button
-                onClick={handleContinue}
-                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SuccessPopup 
+        isOpen={showSuccessPopup}
+        title="Matching Complete"
+        message="The matching process has completed successfully."
+        onContinue={handleContinue}
+      />
     </div>
   );
 };
