@@ -20,21 +20,26 @@ interface FileListItemProps {
 }
 
 const FileListItem = ({ file, isMatching, onBeginMatching }: FileListItemProps) => {
+  const typeMap: {[key: string]: string} = {
+    'state-dept-corrections-felons-list': 'State Department of Corrections Felons List',
+    'dept-of-vital-stats-deceased-list': 'Department of Vital Statistics Deceased Persons List',
+    'change-of-address-record': 'Change of Address Record',
+    'other-voter-file': 'Other State Voter File'
+  };
+  
   const getExternalFileTypeDisplay = (type: string | null): string => {
     if (!type) return '';
-    
-    const typeMap: {[key: string]: string} = {
-      'state-dept-corrections-felons-list': 'State Department of Corrections Felons List',
-      'dept-of-vital-stats-deceased-list': 'Department of Vital Statistics Deceased Persons List',
-      'change-of-address-record': 'Change of Address Record',
-      'other-voter-file': 'Other State Voter File'
-    };
-    
     return typeMap[type] || type;
   };
 
   const renderMatchingControls = () => {
-    if (!isMatching) return null;
+    const isValidForMatching =
+      isMatching &&
+      file.fileType === 'external' &&
+      file.externalFileType &&
+      typeMap[file.externalFileType];
+    
+    if (!isValidForMatching) return null;
     
     switch (file.matchingStatus) {
       case 'active':
@@ -77,7 +82,9 @@ const FileListItem = ({ file, isMatching, onBeginMatching }: FileListItemProps) 
          `${file.fileType}: `}
       </span>
       <span className="ml-2 italic text-gray-600">{file.fileName}</span>
-      {renderMatchingControls()}
+      <div className='ml-auto'>
+        {renderMatchingControls()}
+      </div>
     </li>
   );
 };
@@ -110,11 +117,54 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
         const data = await response.json();
         
         if (matching) {
-          const filesWithStatus = data.map((file: FileData, index: number) => ({
-            ...file,
-            matchingStatus: index === 0 ? 'active' : 'pending'
-          }));
-          setFiles(filesWithStatus);
+
+          const validExternalFiles = data.filter((file: FileData) => 
+            file.fileType === 'external' && 
+            file.externalFileType && 
+            {
+              'state-dept-corrections-felons-list': true,
+              'dept-of-vital-stats-deceased-list': true,
+              'change-of-address-record': true,
+              'other-voter-file': true
+            }[file.externalFileType]
+          );          
+
+          const processedFiles = data.map((file: FileData) => {
+            const isValidMatchingFile = 
+              file.fileType === 'external' && 
+              file.externalFileType && 
+              {
+                'state-dept-corrections-felons-list': true,
+                'dept-of-vital-stats-deceased-list': true,
+                'change-of-address-record': true,
+                'other-voter-file': true
+              }[file.externalFileType];
+              
+
+            const validFileIndex = isValidMatchingFile 
+              ? validExternalFiles.findIndex(vFile => 
+                  vFile.fileName === file.fileName && 
+                  vFile.fileType === file.fileType && 
+                  vFile.externalFileType === file.externalFileType
+                )
+              : -1;            
+
+            return {
+              ...file,
+              matchingStatus: validFileIndex === 0 
+                ? 'active' 
+                : validFileIndex > 0 
+                  ? 'pending' 
+                  : undefined
+            };
+          });
+          
+          setFiles(processedFiles);          
+
+          const activeIndex = processedFiles.findIndex(file => file.matchingStatus === 'active');
+          if (activeIndex !== -1) {
+            setActiveFileIndex(activeIndex);
+          }
         } else {
           setFiles(data);
         }
@@ -134,7 +184,6 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
   const handleBeginMatching = () => {
     setIsProcessing(true);
     
-    // Simulate processing time
     setTimeout(() => {
       setIsProcessing(false);
       setShowSuccessPopup(true);
@@ -148,9 +197,11 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
     
     updatedFiles[activeFileIndex].matchingStatus = 'completed';
     
-    if (activeFileIndex + 1 < files.length) {
-      updatedFiles[activeFileIndex + 1].matchingStatus = 'active';
-      setActiveFileIndex(activeFileIndex + 1);
+    const nextPendingIndex = updatedFiles.findIndex(file => file.matchingStatus === 'pending');
+    
+    if (nextPendingIndex !== -1) {
+      updatedFiles[nextPendingIndex].matchingStatus = 'active';
+      setActiveFileIndex(nextPendingIndex);
     }
     
     setFiles(updatedFiles);

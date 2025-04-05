@@ -15,7 +15,7 @@ export default function MatchFilePage() {
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections}/>
+        <Box sections={sections} width='lg'/>
       </div>
     </ProtectedRoute>    
   );
