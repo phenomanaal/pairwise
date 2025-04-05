@@ -63,4 +63,3 @@ access code: 098675
 - [next.js documentation](https://nextjs.org/docs)
 - [react documentation](https://react.dev/reference/react)
 - [tailwind documentation](https://tailwindcss.com/docs)
-- [mockoon documentation](https://mockoon.com/docs/latest/about/)

@@ -15,7 +15,7 @@ interface AuthContextType {
   verifyAccessCode: (accessCode: string) => Promise<boolean>;
   logout: () => Promise<void>;
   loading: boolean;
-  checkAuth: () => Promise<boolean>; // Added this function
+  checkAuth: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -26,11 +26,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Define checkAuth function to be reusable
   const checkAuth = async () => {
     try {
       const response = await fetch('http://localhost:3001/pairwise/auth-check', {
-        credentials: 'include' // Important for cookies
+        method: 'GET',
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Check if user is already authenticated on mount
+
   useEffect(() => {
     const initialAuthCheck = async () => {
       try {
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, oneTimePassword }),
-        credentials: 'include'  // Add this to handle cookies
+        credentials: 'include'
       });
 
       return response.ok;
@@ -85,11 +85,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ accessCode }),
-        credentials: 'include' // Important for receiving cookies
+        credentials: 'include'
       });
 
       if (response.ok) {
-        // After successful verification, check auth to get user details
+
         await checkAuth();
         return true;
       }
@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       verifyAccessCode,
       logout,
       loading,
-      checkAuth // Export the checkAuth function
+      checkAuth 
     }}>
       {children}
     </AuthContext.Provider>

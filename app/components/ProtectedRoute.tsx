@@ -9,29 +9,21 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const [isVerified, setIsVerified] = useState(false);
   const { isAuthenticated, loading, checkAuth } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      if (!isAuthenticated) {
-        const authenticated = await checkAuth();
+    if (!loading && !isAuthenticated) {
+      checkAuth().then(authenticated => {
         if (!authenticated) {
           router.push('/login');
-          return;
         }
-      }
-      setIsVerified(true);
-    };
-
-    if (!loading) {
-      verifyAuth();
+      });
     }
   }, [checkAuth, isAuthenticated, loading, router]);
 
-  if (loading || !isVerified) {
-    return <div>Loading...</div>; // Or your custom loading component
+  if (loading || !isAuthenticated) {
+    return <div>Loading...</div>;
   }
 
   return <>{children}</>;

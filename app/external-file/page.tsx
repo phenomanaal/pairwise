@@ -9,8 +9,6 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import { runAuth } from '@/app/hooks/useAuth';
 
 export default function MatchFilePage() {
-  runAuth()
-
   const sections = [
     {
       title: 'Current Files:',

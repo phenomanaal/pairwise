@@ -5,7 +5,6 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import * as fs from 'fs';
 
-// Define types for plugin augmentation
 declare module 'fastify' {
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
@@ -88,7 +87,6 @@ const writeExternalFile = (
   writeJsonFile(filePath, jsonData);
 };
 
-// Register JWT
 server.register(fastifyJwt, {
   secret: 'mock-super-secret-key-change-in-production',
   cookie: {
@@ -97,17 +95,15 @@ server.register(fastifyJwt, {
   }
 });
 
-// Register CORS
 server.register(fastifyCors, {
   origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true // Important for cookies
+  credentials: true
 });
 
 server.register(fastifyMultipart);
 server.register(fastifyCookie);
 
-// Create authentication decorator after plugins are registered
 server.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     await request.jwtVerify();
@@ -116,7 +112,6 @@ server.decorate('authenticate', async (request: FastifyRequest, reply: FastifyRe
   }
 });
 
-// Update your login endpoint
 server.post('/pairwise/login', async (request: FastifyRequest, reply: FastifyReply) => {
   const { username, oneTimePassword } = request.body as { username: string, oneTimePassword: string };
 
@@ -138,7 +133,6 @@ server.post('/pairwise/verify-access-code', async (request: FastifyRequest, repl
   const { accessCode } = request.body as { accessCode: string };
 
   if (accessCode === validAccessCode) {
-    // Create a token with user information
     const token = server.jwt.sign(
       { 
         username: validUsername,
@@ -149,12 +143,11 @@ server.post('/pairwise/verify-access-code', async (request: FastifyRequest, repl
       }
     );
 
-    // Set cookie with the token
     reply.setCookie('pairwise_token', token, {
       path: '/',
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: 3600 // 1 hour in seconds
+      maxAge: 3600
     });
 
     return reply.status(200).send({
@@ -288,7 +281,6 @@ server.get('/pairwise/files', {
   }
 });
 
-// Add a logout endpoint
 server.post('/pairwise/logout', async (request: FastifyRequest, reply: FastifyReply) => {
   reply.clearCookie('pairwise_token', { path: '/' });
   return reply.status(200).send({ message: 'Logged out successfully' });
@@ -302,8 +294,6 @@ server.get('/pairwise/auth-check', {
     user: request.user
   });
 });
-
-
 
 server.listen({ port: 3001, host: '0.0.0.0' }, (err, address) => {
   if (err) {
