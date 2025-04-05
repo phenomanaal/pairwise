@@ -282,8 +282,17 @@ server.get('/pairwise/files', {
 });
 
 server.post('/pairwise/logout', async (request: FastifyRequest, reply: FastifyReply) => {
-  reply.clearCookie('pairwise_token', { path: '/' });
-  return reply.status(200).send({ message: 'Logged out successfully' });
+  try {
+    reply.clearCookie('pairwise_token', { path: '/' });
+    await fs.promises.writeFile('data.json', JSON.stringify([], null, 2));
+    return reply.status(200).send({ message: 'Logged out successfully and data cleared' });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    return reply.status(500).send({ 
+      message: 'An error occurred during logout',
+      error: (error as Error).message
+    });
+  }
 });
 
 server.get('/pairwise/auth-check', {

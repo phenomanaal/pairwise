@@ -17,7 +17,7 @@ create_empty_file "./mock-api/data.json"
 echo '[ ]' > mock-api/data.json
 
 echo "Starting API server in mock-api directory..."
-(cd mock-api && npx nodemon --exec ts-node index.ts) &
+(cd mock-api && npx nodemon --ignore data.json --exec ts-node index.ts) &
 
 API_SERVER_PID=$!
 
