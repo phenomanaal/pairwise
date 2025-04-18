@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <div>
       <Navbar />
-      <Box sections={sections}/>
+      <Box sections={sections} width='md' />
     </div>
   );
 }

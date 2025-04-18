@@ -91,15 +91,21 @@ const FileListItem = ({ file, isMatching, onBeginMatching }: FileListItemProps) 
 
 interface CurrentFilesListProps {
   matching?: boolean;
+  onAllMatchesComplete?: () => void;
 }
 
-const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
+const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFilesListProps) => {
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
   const [activeFileIndex, setActiveFileIndex] = useState<number>(0);
+  
+  // Track completion status
+  const [completedMatches, setCompletedMatches] = useState<number>(0);
+  const [totalMatches, setTotalMatches] = useState<number>(0);
+  const [allMatchesCompleted, setAllMatchesCompleted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -117,7 +123,6 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
         const data = await response.json();
         
         if (matching) {
-
           const validExternalFiles = data.filter((file: FileData) => 
             file.fileType === 'external' && 
             file.externalFileType && 
@@ -127,7 +132,10 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
               'change-of-address-record': true,
               'other-voter-file': true
             }[file.externalFileType]
-          );          
+          );      
+          
+          // Set total matches count
+          setTotalMatches(validExternalFiles.length);    
 
           const processedFiles = data.map((file: FileData) => {
             const isValidMatchingFile = 
@@ -140,7 +148,6 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
                 'other-voter-file': true
               }[file.externalFileType];
               
-
             const validFileIndex = isValidMatchingFile 
               ? validExternalFiles.findIndex(vFile => 
                   vFile.fileName === file.fileName && 
@@ -165,6 +172,11 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
           if (activeIndex !== -1) {
             setActiveFileIndex(activeIndex);
           }
+          
+          // Count completed matches
+          const completed = processedFiles.filter(file => file.matchingStatus === 'completed').length;
+          setCompletedMatches(completed);
+          setAllMatchesCompleted(completed === validExternalFiles.length && validExternalFiles.length > 0);
         } else {
           setFiles(data);
         }
@@ -197,14 +209,27 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
     
     updatedFiles[activeFileIndex].matchingStatus = 'completed';
     
+    const newCompletedCount = completedMatches + 1;
+    setCompletedMatches(newCompletedCount);
+    
     const nextPendingIndex = updatedFiles.findIndex(file => file.matchingStatus === 'pending');
     
     if (nextPendingIndex !== -1) {
       updatedFiles[nextPendingIndex].matchingStatus = 'active';
       setActiveFileIndex(nextPendingIndex);
+    } else {
+      setAllMatchesCompleted(true);
     }
     
     setFiles(updatedFiles);
+  };
+
+  const handleContinueToDownload = () => {
+    if (onAllMatchesComplete) {
+      onAllMatchesComplete();
+    }
+    
+    window.location.href = '/download';
   };
 
   return (
@@ -220,16 +245,37 @@ const CurrentFilesList = ({ matching = false }: CurrentFilesListProps) => {
       )}
       
       {!loading && !error && files.length > 0 && (
-        <ul className="space-y-4 pt-5 text-sm">
-          {files.map((file, index) => (
-            <FileListItem 
-              key={index}
-              file={file}
-              isMatching={matching}
-              onBeginMatching={handleBeginMatching}
-            />
-          ))}
-        </ul>
+        <>
+          <ul className="space-y-4 pt-5 text-sm">
+            {files.map((file, index) => (
+              <FileListItem 
+                key={index}
+                file={file}
+                isMatching={matching}
+                onBeginMatching={handleBeginMatching}
+              />
+            ))}
+          </ul>
+          
+          {matching && totalMatches > 0 && (
+            <div className="mt-8 border-t pt-4">
+              <div className="flex flex-col items-center">
+                <div className="font-medium text-gray-700 mb-4">
+                  {completedMatches} of {totalMatches} Matches Complete
+                </div>
+                
+                <Button 
+                  onClick={handleContinueToDownload}
+                  variant={allMatchesCompleted ? "primary" : "disabled"}
+                  className="px-8"
+                  title={!allMatchesCompleted ? "Please complete all list matches in order to continue" : ""}
+                >
+                  Continue
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
       
       <ProcessingPopup 

@@ -97,7 +97,6 @@ const LoginForm = () => {
     );
   }
 
-  // For the second step, use the existing AccessCodeForm but with some modifications
   return (
     <div>
       <AccessCodeForm redirectPath="/" />

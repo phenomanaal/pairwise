@@ -27,7 +27,7 @@ export default function HomePage() {
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} />
+        <Box sections={sections} width='md' />
       </div>
     </ProtectedRoute>
   );
