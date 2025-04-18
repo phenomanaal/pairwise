@@ -37,7 +37,6 @@ const LoginForm = () => {
         setLoading(false);
       }
     };
-  // Handle going back to credentials step
   const handleBack = () => {
     setCurrentStep('credentials');
   };
@@ -61,7 +60,6 @@ const LoginForm = () => {
     }
   };
 
-  // Render the credentials form (first step)
   if (currentStep === 'credentials') {
     return (
       <form onSubmit={handleCredentialsSubmit}>

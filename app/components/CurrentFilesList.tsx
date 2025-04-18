@@ -1,93 +1,20 @@
-// components/CurrentFilesList.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import Button from './ui/Button';
 import ProcessingPopup from './ui/ProcessingPopup';
 import SuccessPopup from './ui/SuccessPopup';
+import MatchingFilesView from './MatchingFilesViews'
+import ResultsOverview from './ResultsOverview';
 
-interface FileData {
+export interface FileData {
+  id: string;
   fileType: string;
   externalFileType: string | null;
   fileName: string;
+  matchStatus: boolean;
+  downloadStatus: boolean;
   matchingStatus?: 'pending' | 'active' | 'completed';
 }
-
-interface FileListItemProps {
-  file: FileData;
-  isMatching: boolean;
-  onBeginMatching: () => void;
-}
-
-const FileListItem = ({ file, isMatching, onBeginMatching }: FileListItemProps) => {
-  const typeMap: {[key: string]: string} = {
-    'state-dept-corrections-felons-list': 'State Department of Corrections Felons List',
-    'dept-of-vital-stats-deceased-list': 'Department of Vital Statistics Deceased Persons List',
-    'change-of-address-record': 'Change of Address Record',
-    'other-voter-file': 'Other State Voter File'
-  };
-  
-  const getExternalFileTypeDisplay = (type: string | null): string => {
-    if (!type) return '';
-    return typeMap[type] || type;
-  };
-
-  const renderMatchingControls = () => {
-    const isValidForMatching =
-      isMatching &&
-      file.fileType === 'external' &&
-      file.externalFileType &&
-      typeMap[file.externalFileType];
-    
-    if (!isValidForMatching) return null;
-    
-    switch (file.matchingStatus) {
-      case 'active':
-        return (
-          <Button 
-            onClick={onBeginMatching}
-            className="ml-4"
-          >
-            Begin Matching
-          </Button>
-        );
-      case 'completed':
-        return (
-          <div className="ml-4 flex items-center">
-            <span className="text-green-600 font-semibold mr-3">Completed</span>
-            <Button>
-              Results Overview
-            </Button>
-          </div>
-        );
-      case 'pending':
-        return (
-          <Button 
-            variant="disabled"
-            className="ml-4"
-          >
-            Begin Matching
-          </Button>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <li className="flex items-center">
-      <span className="text-gray-700">
-        {file.fileType === 'voter' ? 'Voter File: ' : 
-         file.fileType === 'external' ? `External (${getExternalFileTypeDisplay(file.externalFileType)}): ` :
-         `${file.fileType}: `}
-      </span>
-      <span className="ml-2 italic text-gray-600">{file.fileName}</span>
-      <div className='ml-auto'>
-        {renderMatchingControls()}
-      </div>
-    </li>
-  );
-};
 
 interface CurrentFilesListProps {
   matching?: boolean;
@@ -102,10 +29,18 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
   const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
   const [activeFileIndex, setActiveFileIndex] = useState<number>(0);
   
-  // Track completion status
   const [completedMatches, setCompletedMatches] = useState<number>(0);
   const [totalMatches, setTotalMatches] = useState<number>(0);
   const [allMatchesCompleted, setAllMatchesCompleted] = useState<boolean>(false);
+  const [showResultsOverview, setShowResultsOverview] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
+
+  const validExternalFileTypes = {
+    'state-dept-corrections-felons-list': true,
+    'dept-of-vital-stats-deceased-list': true,
+    'change-of-address-record': true,
+    'other-voter-file': true
+  };
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -126,27 +61,16 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
           const validExternalFiles = data.filter((file: FileData) => 
             file.fileType === 'external' && 
             file.externalFileType && 
-            {
-              'state-dept-corrections-felons-list': true,
-              'dept-of-vital-stats-deceased-list': true,
-              'change-of-address-record': true,
-              'other-voter-file': true
-            }[file.externalFileType]
+            validExternalFileTypes[file.externalFileType]
           );      
           
-          // Set total matches count
           setTotalMatches(validExternalFiles.length);    
 
           const processedFiles = data.map((file: FileData) => {
             const isValidMatchingFile = 
               file.fileType === 'external' && 
               file.externalFileType && 
-              {
-                'state-dept-corrections-felons-list': true,
-                'dept-of-vital-stats-deceased-list': true,
-                'change-of-address-record': true,
-                'other-voter-file': true
-              }[file.externalFileType];
+              validExternalFileTypes[file.externalFileType];
               
             const validFileIndex = isValidMatchingFile 
               ? validExternalFiles.findIndex(vFile => 
@@ -173,7 +97,6 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
             setActiveFileIndex(activeIndex);
           }
           
-          // Count completed matches
           const completed = processedFiles.filter(file => file.matchingStatus === 'completed').length;
           setCompletedMatches(completed);
           setAllMatchesCompleted(completed === validExternalFiles.length && validExternalFiles.length > 0);
@@ -232,50 +155,36 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
     window.location.href = '/download';
   };
 
+  const handleViewResults = (file: FileData) => {
+    setSelectedFile(file);
+    setShowResultsOverview(true);
+  };
+
+  const handleBackToMatching = () => {
+    setShowResultsOverview(false);
+    setSelectedFile(null);
+  };
+
   return (
     <div className="relative">
-      <p>You uploaded the following files successfully:</p>
-      
-      {loading && <p className="mt-4">Loading files...</p>}
-      
-      {error && <p className="mt-4 text-red-500">{error}</p>}
-      
-      {!loading && !error && files.length === 0 && (
-        <p className="mt-4 italic">No files have been uploaded yet.</p>
-      )}
-      
-      {!loading && !error && files.length > 0 && (
-        <>
-          <ul className="space-y-4 pt-5 text-sm">
-            {files.map((file, index) => (
-              <FileListItem 
-                key={index}
-                file={file}
-                isMatching={matching}
-                onBeginMatching={handleBeginMatching}
-              />
-            ))}
-          </ul>
-          
-          {matching && totalMatches > 0 && (
-            <div className="mt-8 border-t pt-4">
-              <div className="flex flex-col items-center">
-                <div className="font-medium text-gray-700 mb-4">
-                  {completedMatches} of {totalMatches} Matches Complete
-                </div>
-                
-                <Button 
-                  onClick={handleContinueToDownload}
-                  variant={allMatchesCompleted ? "primary" : "disabled"}
-                  className="px-8"
-                  title={!allMatchesCompleted ? "Please complete all list matches in order to continue" : ""}
-                >
-                  Continue
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
+      {!showResultsOverview ? (
+        <MatchingFilesView 
+          files={files}
+          loading={loading}
+          error={error}
+          matching={matching}
+          totalMatches={totalMatches}
+          completedMatches={completedMatches}
+          allMatchesCompleted={allMatchesCompleted}
+          onBeginMatching={handleBeginMatching}
+          onViewResults={handleViewResults}
+          onContinue={handleContinueToDownload}
+        />
+      ) : (
+        <ResultsOverview 
+          file={selectedFile}
+          onBack={handleBackToMatching}
+        />
       )}
       
       <ProcessingPopup 

@@ -4,6 +4,7 @@ import { fastifyMultipart } from '@fastify/multipart';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -42,9 +43,12 @@ interface JsonData {
 }
 
 interface FileData {
+  id: string;
   fileType: string;
   externalFileType: string | null;
   fileName: string;
+  matchStatus: boolean;
+  downloadStatus: boolean;
 }
 interface AccessCodePayload {
   accessCode: string;
@@ -166,6 +170,35 @@ server.post('/pairwise/verify-access-code', async (request: FastifyRequest, repl
 });
 
 
+
+server.post('/pairwise/match', {
+  preHandler: server.authenticate
+}, async (request: FastifyRequest, reply: FastifyReply) => {
+  const body = request.body;
+  const { id } = request.body as { id: string; };
+
+  const parts = request.parts();
+  let fileData: FileData[] = [];
+  try {
+
+
+    const data = await fs.promises.readFile('data.json', 'utf8');
+    fileData = JSON.parse(data) as FileData[];
+
+    const fileIndex = fileData.findIndex(file => file.id === id);
+    if (fileIndex !== -1) {
+      fileData[fileIndex].matchStatus = true;
+
+      await fs.promises.writeFile('data.json', JSON.stringify(fileData, null, 2), 'utf8');
+    }
+    return reply.status(200).send({message: `matchStatus of file ${id} set to true.`})
+  } catch (error) { 
+    return reply.status(400).send({ message: String(error) });
+  }
+
+});
+
+
 server.post('/pairwise/file', {
   preHandler: server.authenticate
 }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -173,6 +206,8 @@ server.post('/pairwise/file', {
   let fileName: string = '';
   let fileType: string = '';
   let externalFileType: string | null = null;
+  const matchStatus = false;
+  const downloadStatus = false;
 
   for await (const part of parts) {
     if (part.type === 'file') {
@@ -226,11 +261,14 @@ server.post('/pairwise/file', {
         message: 'This exact file entry already exists in the system.'
       });
     }
-    
+    const id: string = uuidv4();
     const newEntry: FileData = {
+      id,
       fileType,
       externalFileType: fileType === 'external' ? externalFileType : null,
-      fileName
+      fileName,
+      matchStatus,
+      downloadStatus
     };
     
     fileData.push(newEntry);
