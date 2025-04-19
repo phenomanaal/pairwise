@@ -1,7 +1,5 @@
 #!/bin/bash
-
-
-
+         
 echo "Creating empty test CSV files..."
 
 create_empty_file() {
@@ -26,9 +24,7 @@ cleanup() {
     kill $API_SERVER_PID
     
     echo "Cleaning up test CSV and data files..."
-    rm -f test-voter-file.csv
-    rm -f test-external-file-1.csv
-    rm -f test-external-file-2.csv
+    rm -f test-files/*
     rm -f ./mock-api/data.json
 }
 trap cleanup EXIT
