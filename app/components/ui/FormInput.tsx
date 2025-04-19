@@ -1,4 +1,3 @@
-// components/ui/FormInput.tsx
 'use client';
 
 interface FormInputProps {

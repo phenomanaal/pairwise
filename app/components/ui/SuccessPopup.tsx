@@ -1,4 +1,3 @@
-// components/ui/SuccessPopup.tsx
 'use client';
 import Button from './Button';
 

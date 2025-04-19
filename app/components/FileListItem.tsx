@@ -15,7 +15,6 @@ const FileListItem: React.FC<FileListItemProps> = ({
   onBeginMatching,
   onViewResults,
 }) => {
-  // External file type display mapping
   const typeMap: { [key: string]: string } = {
     'state-dept-corrections-felons-list':
       'State Department of Corrections Felons List',
@@ -43,7 +42,6 @@ const FileListItem: React.FC<FileListItemProps> = ({
 
     if (!isValidForMatching) return null;
 
-    // If matchStatus is true, always show Results Overview button
     if (file.matchStatus) {
       return (
         <div className="ml-4 flex items-center">
@@ -53,7 +51,6 @@ const FileListItem: React.FC<FileListItemProps> = ({
       );
     }
 
-    // Otherwise follow the matchingStatus logic
     switch (file.matchingStatus) {
       case 'active':
         return (

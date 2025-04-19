@@ -1,4 +1,3 @@
-// components/AccessCodeForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +7,7 @@ import Button from './ui/Button';
 import ErrorMessage from './ui/ErrorMessage';
 
 interface AccessCodeFormProps {
-  redirectPath?: string; // Add this to make the redirect path configurable
+  redirectPath?: string;
 }
 
 const AccessCodeForm = ({

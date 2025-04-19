@@ -1,4 +1,3 @@
-// components/ui/ErrorMessage.tsx
 'use client';
 
 interface ErrorMessageProps {

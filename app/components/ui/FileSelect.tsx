@@ -1,4 +1,3 @@
-// components/ui/FileSelect.tsx
 'use client';
 import Button from './Button';
 

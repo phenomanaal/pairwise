@@ -1,4 +1,3 @@
-// components/ui/ProcessingPopup.tsx
 'use client';
 
 interface ProcessingPopupProps {

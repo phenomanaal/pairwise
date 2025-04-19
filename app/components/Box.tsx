@@ -1,4 +1,3 @@
-// components/LoginForm.tsx
 import React from 'react';
 
 interface Section {

@@ -74,7 +74,6 @@ const LoginForm = () => {
     <div>
       <AccessCodeForm redirectPath="/" />
 
-      {/* Add back button */}
       <div className="mt-4">
         <Button
           type="button"

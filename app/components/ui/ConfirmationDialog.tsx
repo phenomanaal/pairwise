@@ -1,4 +1,3 @@
-// components/ui/ConfirmationDialog.tsx
 'use client';
 import Button from './Button';
 
