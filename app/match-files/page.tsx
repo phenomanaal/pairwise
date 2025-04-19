@@ -1,4 +1,3 @@
-// app/match-files/page.tsx
 import Box from '@/app/components/Box';
 import CurrentFilesList from '@/app/components/CurrentFilesList';
 import Navbar from '@/app/components/Navbar';

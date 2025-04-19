@@ -1,4 +1,3 @@
-// app/login/page.tsx
 import Box from '@/app/components/Box';
 import LoginForm from '@/app/components/LoginForm';
 import Navbar from '@/app/components/Navbar';

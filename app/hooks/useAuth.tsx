@@ -143,18 +143,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const runAuth = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const { isAuthenticated, checkAuth } = useAuth();
+  const { checkAuth } = useAuth();
 
   useEffect(() => {
     const verifyAuth = async () => {
-      setIsLoading(true);
       const authenticated = await checkAuth();
       if (!authenticated) {
         router.push('/login');
       }
-      setIsLoading(false);
     };
 
     verifyAuth();

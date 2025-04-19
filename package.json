@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --writ"
+    "format": "pnpm exec prettier . --write"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

@@ -1,4 +1,3 @@
-// hooks/useFormSubmit.ts
 'use client';
 
 import { useState } from 'react';
@@ -43,7 +42,7 @@ export const useFormSubmit = ({
         setError(data.message || 'An error occurred. Please try again.');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(`An unexpected error occurred: ${err}`);
     } finally {
       setLoading(false);
     }
