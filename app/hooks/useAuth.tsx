@@ -142,22 +142,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const runAuth = () => {
-  const router = useRouter();
-  const { checkAuth } = useAuth();
-
-  useEffect(() => {
-    const verifyAuth = async () => {
-      const authenticated = await checkAuth();
-      if (!authenticated) {
-        router.push('/login');
-      }
-    };
-
-    verifyAuth();
-  }, [router, checkAuth]);
-};
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
