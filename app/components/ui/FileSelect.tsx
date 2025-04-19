@@ -17,9 +17,7 @@ const FileSelect = ({ onFileChange, selectedFileName }: FileSelectProps) => {
 
   return (
     <div className="flex items-center gap-4 mt-1">
-      <Button
-        onClick={() => document.getElementById('file')?.click()}
-      >
+      <Button onClick={() => document.getElementById('file')?.click()}>
         Choose File
       </Button>
 
@@ -29,7 +27,7 @@ const FileSelect = ({ onFileChange, selectedFileName }: FileSelectProps) => {
         className="hidden"
         onChange={handleFileChange}
       />
-      
+
       <span className="text-sm text-gray-500">
         {selectedFileName || 'No file selected'}
       </span>

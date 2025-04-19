@@ -18,26 +18,23 @@ const ResultsOverview: React.FC<ResultsOverviewProps> = ({ file, onBack }) => {
     <div className="bg-gray-50 p-6 rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Results Overview</h2>
-        <Button 
-          onClick={onBack}
-          variant="secondary"
-        >
+        <Button onClick={onBack} variant="secondary">
           Back
         </Button>
       </div>
-      
+
       {file && (
         <>
           <div className="mb-4">
             <p className="font-medium mb-2">File Information:</p>
             <p className="text-sm text-gray-700 ml-2">
-              {file.fileType === 'external' ? 
-                `External File (${file.externalFileType})` : 
-                file.fileType}
+              {file.fileType === 'external'
+                ? `External File (${file.externalFileType})`
+                : file.fileType}
               : {file.fileName}
             </p>
           </div>
-          
+
           <div className="mb-4">
             <p className="font-medium mb-2">Match Summary:</p>
             <div className="bg-white p-4 rounded-md border border-gray-200">
@@ -83,11 +80,12 @@ const ResultsOverview: React.FC<ResultsOverviewProps> = ({ file, onBack }) => {
               </div>
             </div>
           </div>
-          
+
           <div>
             <p className="font-medium mb-2">Processing Information:</p>
             <p className="text-sm text-gray-700 ml-2">
-              This file was processed on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+              This file was processed on {new Date().toLocaleDateString()} at{' '}
+              {new Date().toLocaleTimeString()}
             </p>
             <p className="text-sm text-gray-700 ml-2 mt-1">
               Processing time: 3 minutes 24 seconds

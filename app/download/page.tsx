@@ -8,15 +8,15 @@ export default function DownloadPage() {
   const sections = [
     {
       title: 'Download Results:',
-      children: <DownloadResults />
-    }
+      children: <DownloadResults />,
+    },
   ];
-  
+
   return (
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} width='30' />
+        <Box sections={sections} width="30" />
       </div>
     </ProtectedRoute>
   );

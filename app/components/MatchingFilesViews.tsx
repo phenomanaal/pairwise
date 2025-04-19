@@ -26,25 +26,25 @@ const MatchingFilesView: React.FC<MatchingFilesViewProps> = ({
   allMatchesCompleted,
   onBeginMatching,
   onViewResults,
-  onContinue
+  onContinue,
 }) => {
   return (
     <>
       <p>You uploaded the following files successfully:</p>
-      
+
       {loading && <p className="mt-4">Loading files...</p>}
-      
+
       {error && <p className="mt-4 text-red-500">{error}</p>}
-      
+
       {!loading && !error && files.length === 0 && (
         <p className="mt-4 italic">No files have been uploaded yet.</p>
       )}
-      
+
       {!loading && !error && files.length > 0 && (
         <>
           <ul className="space-y-4 pt-5 text-sm">
             {files.map((file, index) => (
-              <FileListItem 
+              <FileListItem
                 key={index}
                 file={file}
                 isMatching={matching}
@@ -53,7 +53,7 @@ const MatchingFilesView: React.FC<MatchingFilesViewProps> = ({
               />
             ))}
           </ul>
-          
+
           {matching && totalMatches > 0 && (
             <CompletionTracker
               completedMatches={completedMatches}

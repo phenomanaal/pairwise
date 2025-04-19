@@ -8,15 +8,15 @@ export default function MatchFilePage() {
   const sections = [
     {
       title: 'Current Files:',
-          children: <CurrentFilesList matching={true} />        
-    }
-  ]
+      children: <CurrentFilesList matching={true} />,
+    },
+  ];
   return (
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} width='30' />
+        <Box sections={sections} width="30" />
       </div>
-    </ProtectedRoute>    
+    </ProtectedRoute>
   );
 }

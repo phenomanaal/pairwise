@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { useAuth } from '@/app/hooks/useAuth'
-import { useRouter } from 'next/navigation';;
+import { useAuth } from '@/app/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();

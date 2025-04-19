@@ -15,7 +15,7 @@ export const useFormSubmit = ({
   endpoint,
   method = 'POST',
   onSuccess,
-  redirectTo
+  redirectTo,
 }: UseFormSubmitProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

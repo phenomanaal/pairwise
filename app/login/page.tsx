@@ -6,14 +6,14 @@ import Navbar from '@/app/components/Navbar';
 export default function LoginPage() {
   const sections = [
     {
-      title: "PairWise Login",
-      children: <LoginForm />
-    }
-  ]
+      title: 'PairWise Login',
+      children: <LoginForm />,
+    },
+  ];
   return (
     <div>
       <Navbar />
-      <Box sections={sections} width='md' />
+      <Box sections={sections} width="md" />
     </div>
   );
 }

@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { useRouter } from 'next/navigation';
 
 interface User {
@@ -28,11 +34,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('http://localhost:3001/pairwise/auth-check', {
-        method: 'GET',
-        credentials: 'include'
-      });
-      
+      const response = await fetch(
+        'http://localhost:3001/pairwise/auth-check',
+        {
+          method: 'GET',
+          credentials: 'include',
+        },
+      );
+
       if (response.ok) {
         const data = await response.json();
         setIsAuthenticated(true);
@@ -45,7 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
   };
-
 
   useEffect(() => {
     const initialAuthCheck = async () => {
@@ -67,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, oneTimePassword }),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       return response.ok;
@@ -79,17 +87,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyAccessCode = async (accessCode: string) => {
     try {
-      const response = await fetch('http://localhost:3001/pairwise/verify-access-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:3001/pairwise/verify-access-code',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ accessCode }),
+          credentials: 'include',
         },
-        body: JSON.stringify({ accessCode }),
-        credentials: 'include'
-      });
+      );
 
       if (response.ok) {
-
         await checkAuth();
         return true;
       }
@@ -104,9 +114,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await fetch('http://localhost:3001/pairwise/logout', {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
       });
-      
+
       setIsAuthenticated(false);
       setUser(null);
       router.push('/login');
@@ -116,15 +126,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      login,
-      verifyAccessCode,
-      logout,
-      loading,
-      checkAuth 
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        verifyAccessCode,
+        logout,
+        loading,
+        checkAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

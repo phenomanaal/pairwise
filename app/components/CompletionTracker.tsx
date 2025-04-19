@@ -8,11 +8,11 @@ interface CompletionTrackerProps {
   onContinue: () => void;
 }
 
-const CompletionTracker: React.FC<CompletionTrackerProps> = ({ 
-  completedMatches, 
-  totalMatches, 
-  allMatchesCompleted, 
-  onContinue 
+const CompletionTracker: React.FC<CompletionTrackerProps> = ({
+  completedMatches,
+  totalMatches,
+  allMatchesCompleted,
+  onContinue,
 }) => {
   return (
     <div className="mt-8 border-t pt-4">
@@ -20,12 +20,16 @@ const CompletionTracker: React.FC<CompletionTrackerProps> = ({
         <div className="font-medium text-gray-700 mb-4">
           {completedMatches} of {totalMatches} Matches Complete
         </div>
-        
-        <Button 
+
+        <Button
           onClick={onContinue}
-          variant={allMatchesCompleted ? "primary" : "disabled"}
+          variant={allMatchesCompleted ? 'primary' : 'disabled'}
           className="px-8"
-          title={!allMatchesCompleted ? "Please complete all list matches in order to continue" : ""}
+          title={
+            !allMatchesCompleted
+              ? 'Please complete all list matches in order to continue'
+              : ''
+          }
         >
           Continue
         </Button>

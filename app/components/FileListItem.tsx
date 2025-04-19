@@ -9,20 +9,22 @@ interface FileListItemProps {
   onViewResults: (file: FileData) => void;
 }
 
-const FileListItem: React.FC<FileListItemProps> = ({ 
-  file, 
-  isMatching, 
-  onBeginMatching, 
-  onViewResults 
+const FileListItem: React.FC<FileListItemProps> = ({
+  file,
+  isMatching,
+  onBeginMatching,
+  onViewResults,
 }) => {
   // External file type display mapping
-  const typeMap: {[key: string]: string} = {
-    'state-dept-corrections-felons-list': 'State Department of Corrections Felons List',
-    'dept-of-vital-stats-deceased-list': 'Department of Vital Statistics Deceased Persons List',
+  const typeMap: { [key: string]: string } = {
+    'state-dept-corrections-felons-list':
+      'State Department of Corrections Felons List',
+    'dept-of-vital-stats-deceased-list':
+      'Department of Vital Statistics Deceased Persons List',
     'change-of-address-record': 'Change of Address Record',
-    'other-voter-file': 'Other State Voter File'
+    'other-voter-file': 'Other State Voter File',
   };
-  
+
   const getExternalFileTypeDisplay = (type: string | null): string => {
     if (!type) return '';
     return typeMap[type] || type;
@@ -38,7 +40,7 @@ const FileListItem: React.FC<FileListItemProps> = ({
       file.fileType === 'external' &&
       file.externalFileType &&
       typeMap[file.externalFileType];
-    
+
     if (!isValidForMatching) return null;
 
     // If matchStatus is true, always show Results Overview button
@@ -46,30 +48,22 @@ const FileListItem: React.FC<FileListItemProps> = ({
       return (
         <div className="ml-4 flex items-center">
           <span className="text-green-600 font-semibold mr-3">Completed</span>
-          <Button onClick={() => onViewResults(file)}>
-            Results Overview
-          </Button>
+          <Button onClick={() => onViewResults(file)}>Results Overview</Button>
         </div>
       );
     }
-    
+
     // Otherwise follow the matchingStatus logic
     switch (file.matchingStatus) {
       case 'active':
         return (
-          <Button 
-            onClick={handleMatchingClick}
-            className="ml-4"
-          >
+          <Button onClick={handleMatchingClick} className="ml-4">
             Begin Matching
           </Button>
         );
       case 'pending':
         return (
-          <Button 
-            variant="disabled"
-            className="ml-4"
-          >
+          <Button variant="disabled" className="ml-4">
             Begin Matching
           </Button>
         );
@@ -81,14 +75,14 @@ const FileListItem: React.FC<FileListItemProps> = ({
   return (
     <li className="flex items-center">
       <span className="text-gray-700">
-        {file.fileType === 'voter' ? 'Voter File: ' : 
-         file.fileType === 'external' ? `External (${getExternalFileTypeDisplay(file.externalFileType)}): ` :
-         `${file.fileType}: `}
+        {file.fileType === 'voter'
+          ? 'Voter File: '
+          : file.fileType === 'external'
+            ? `External (${getExternalFileTypeDisplay(file.externalFileType)}): `
+            : `${file.fileType}: `}
       </span>
       <span className="ml-2 italic text-gray-600">{file.fileName}</span>
-      <div className='ml-auto'>
-        {renderMatchingControls()}
-      </div>
+      <div className="ml-auto">{renderMatchingControls()}</div>
     </li>
   );
 };

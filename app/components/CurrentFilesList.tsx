@@ -12,7 +12,7 @@ export interface FileData {
   fileType: string;
   externalFileType: string | null;
   fileName: string;
-  matchStatus: boolean; 
+  matchStatus: boolean;
   downloadStatus: boolean;
   matchingStatus?: 'pending' | 'active' | 'completed';
 }
@@ -22,68 +22,76 @@ interface CurrentFilesListProps {
   onAllMatchesComplete?: () => void;
 }
 
-const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFilesListProps) => {
+const CurrentFilesList = ({
+  matching = false,
+  onAllMatchesComplete,
+}: CurrentFilesListProps) => {
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
   const [activeFileIndex, setActiveFileIndex] = useState<number>(0);
-  
+
   const [completedMatches, setCompletedMatches] = useState<number>(0);
   const [totalMatches, setTotalMatches] = useState<number>(0);
-  const [allMatchesCompleted, setAllMatchesCompleted] = useState<boolean>(false);
-  const [showResultsOverview, setShowResultsOverview] = useState<boolean>(false);
+  const [allMatchesCompleted, setAllMatchesCompleted] =
+    useState<boolean>(false);
+  const [showResultsOverview, setShowResultsOverview] =
+    useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
-  const router = useRouter()
-
-  const validExternalFileTypes = {
-    'state-dept-corrections-felons-list': true,
-    'dept-of-vital-stats-deceased-list': true,
-    'change-of-address-record': true,
-    'other-voter-file': true
-  };
+  const router = useRouter();
 
   useEffect(() => {
+    const validExternalFileTypes = {
+      'state-dept-corrections-felons-list': true,
+      'dept-of-vital-stats-deceased-list': true,
+      'change-of-address-record': true,
+      'other-voter-file': true,
+    };
+
     const fetchFiles = async () => {
       try {
         setLoading(true);
         const response = await fetch('http://localhost:3001/pairwise/files', {
           method: 'GET',
-          credentials: 'include'
+          credentials: 'include',
         });
-        
+
         if (!response.ok) {
           throw new Error(`Server responded with status ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (matching) {
-          const validExternalFiles = data.filter((file: FileData) => 
-            file.fileType === 'external' && 
-            file.externalFileType && 
-            validExternalFileTypes[file.externalFileType]
-          );      
-          
-          setTotalMatches(validExternalFiles.length);    
+          const validExternalFiles = data.filter(
+            (file: FileData) =>
+              file.fileType === 'external' &&
+              file.externalFileType &&
+              validExternalFileTypes[file.externalFileType],
+          );
 
-          const alreadyMatchedCount = validExternalFiles.filter(file => file.matchStatus).length;
-          
+          setTotalMatches(validExternalFiles.length);
+
+          const alreadyMatchedCount = validExternalFiles.filter(
+            (file) => file.matchStatus,
+          ).length;
+
           const processedFiles = data.map((file: FileData) => {
-            const isValidMatchingFile = 
-              file.fileType === 'external' && 
-              file.externalFileType && 
+            const isValidMatchingFile =
+              file.fileType === 'external' &&
+              file.externalFileType &&
               validExternalFileTypes[file.externalFileType];
-              
-            const validFileIndex = isValidMatchingFile 
-              ? validExternalFiles.findIndex(vFile => 
-                  vFile.fileName === file.fileName && 
-                  vFile.fileType === file.fileType && 
-                  vFile.externalFileType === file.externalFileType
-                )
-              : -1;            
 
+            const validFileIndex = isValidMatchingFile
+              ? validExternalFiles.findIndex(
+                  (vFile) =>
+                    vFile.fileName === file.fileName &&
+                    vFile.fileType === file.fileType &&
+                    vFile.externalFileType === file.externalFileType,
+                )
+              : -1;
 
             let matchingStatus;
             if (file.matchStatus) {
@@ -96,26 +104,31 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
 
             return {
               ...file,
-              matchingStatus
+              matchingStatus,
             };
           });
-          
-          setFiles(processedFiles);          
+
+          setFiles(processedFiles);
 
           setCompletedMatches(alreadyMatchedCount);
-          
+
           if (alreadyMatchedCount === 0) {
-            const activeIndex = processedFiles.findIndex(file => file.matchingStatus === 'active');
+            const activeIndex = processedFiles.findIndex(
+              (file) => file.matchingStatus === 'active',
+            );
             if (activeIndex !== -1) {
               setActiveFileIndex(activeIndex);
             }
           }
-          
-          setAllMatchesCompleted(alreadyMatchedCount === validExternalFiles.length && validExternalFiles.length > 0);
+
+          setAllMatchesCompleted(
+            alreadyMatchedCount === validExternalFiles.length &&
+              validExternalFiles.length > 0,
+          );
         } else {
           setFiles(data);
         }
-        
+
         setError(null);
       } catch (err) {
         console.error('Error fetching files:', err);
@@ -130,7 +143,7 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
 
   const handleBeginMatching = async (fileId: string) => {
     setIsProcessing(true);
-    
+
     try {
       const response = await fetch('http://localhost:3001/pairwise/match', {
         method: 'POST',
@@ -139,14 +152,14 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: fileId
+          id: fileId,
         }),
       });
 
       if (!response.ok) {
         throw new Error('Matching API request failed');
       }
-      
+
       setTimeout(() => {
         setIsProcessing(false);
         setShowSuccessPopup(true);
@@ -159,24 +172,26 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
 
   const handleContinue = () => {
     setShowSuccessPopup(false);
-    
+
     const updatedFiles = [...files];
-    
+
     updatedFiles[activeFileIndex].matchingStatus = 'completed';
     updatedFiles[activeFileIndex].matchStatus = true;
-    
+
     const newCompletedCount = completedMatches + 1;
     setCompletedMatches(newCompletedCount);
-    
-    const nextPendingIndex = updatedFiles.findIndex(file => file.matchingStatus === 'pending');
-    
+
+    const nextPendingIndex = updatedFiles.findIndex(
+      (file) => file.matchingStatus === 'pending',
+    );
+
     if (nextPendingIndex !== -1) {
       updatedFiles[nextPendingIndex].matchingStatus = 'active';
       setActiveFileIndex(nextPendingIndex);
     } else {
       setAllMatchesCompleted(true);
     }
-    
+
     setFiles(updatedFiles);
   };
 
@@ -184,7 +199,7 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
     if (onAllMatchesComplete) {
       onAllMatchesComplete();
     }
-    
+
     router.push('/download');
   };
 
@@ -201,7 +216,7 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
   return (
     <div className="relative">
       {!showResultsOverview ? (
-        <MatchingFilesView 
+        <MatchingFilesView
           files={files}
           loading={loading}
           error={error}
@@ -214,19 +229,16 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
           onContinue={handleContinueToDownload}
         />
       ) : (
-        <ResultsOverview 
-          file={selectedFile}
-          onBack={handleBackToMatching}
-        />
+        <ResultsOverview file={selectedFile} onBack={handleBackToMatching} />
       )}
-      
-      <ProcessingPopup 
+
+      <ProcessingPopup
         isOpen={isProcessing}
         title="Processing"
         message="Matching files in progress..."
       />
-      
-      <SuccessPopup 
+
+      <SuccessPopup
         isOpen={showSuccessPopup}
         title="Matching Complete"
         message="The matching process has completed successfully."

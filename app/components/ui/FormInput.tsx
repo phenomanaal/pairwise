@@ -20,7 +20,7 @@ const FormInput = ({
   type = 'text',
   placeholder = '',
   required = false,
-  disabled = false
+  disabled = false,
 }: FormInputProps) => {
   return (
     <div className="mb-4">

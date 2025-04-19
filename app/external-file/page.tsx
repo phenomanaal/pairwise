@@ -12,18 +12,18 @@ export default function MatchFilePage() {
   const sections = [
     {
       title: 'Current Files:',
-      children: <CurrentFilesList />        
+      children: <CurrentFilesList />,
     },
     {
-      title: "Upload External File",
-      children: <UploadForm fileType={"external"}/>
-    }
-  ]
+      title: 'Upload External File',
+      children: <UploadForm fileType={'external'} />,
+    },
+  ];
   return (
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} width='md' />
+        <Box sections={sections} width="md" />
       </div>
     </ProtectedRoute>
   );

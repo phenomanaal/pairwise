@@ -1,63 +1,42 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import FormInput from './ui/FormInput';
 import Button from './ui/Button';
 import ErrorMessage from './ui/ErrorMessage';
 import AccessCodeForm from './AccessCodeForm';
-import { useAuth } from '@/app/hooks/useAuth'
-
+import { useAuth } from '@/app/hooks/useAuth';
 
 const LoginForm = () => {
-  const [currentStep, setCurrentStep] = useState<'credentials' | 'accessCode'>('credentials');
+  const [currentStep, setCurrentStep] = useState<'credentials' | 'accessCode'>(
+    'credentials',
+  );
   const [username, setUsername] = useState('');
   const [oneTimePassword, setOneTimePassword] = useState('');
-  const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { login, verifyAccessCode } = useAuth();
+  const { login } = useAuth();
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoading(true);
-      setError('');
-
-      try {
-        const success = await login(username, oneTimePassword);
-        if (success) {
-          setCurrentStep('accessCode');
-        } else {
-          setError('Invalid credentials');
-        }
-      } catch (err) {
-        setError('An unexpected error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-  const handleBack = () => {
-    setCurrentStep('credentials');
-  };
-
-  const handleAccessCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const success = await verifyAccessCode(accessCode);
+      const success = await login(username, oneTimePassword);
       if (success) {
-        router.push('/');
+        setCurrentStep('accessCode');
       } else {
-        setError('Invalid access code');
+        setError('Invalid credentials');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(`An unexpected error occurred: ${err}`);
     } finally {
       setLoading(false);
     }
+  };
+  const handleBack = () => {
+    setCurrentStep('credentials');
   };
 
   if (currentStep === 'credentials') {
@@ -84,11 +63,7 @@ const LoginForm = () => {
 
         <ErrorMessage message={error} />
 
-        <Button
-          type="submit"
-          disabled={loading}
-          fullWidth
-        >
+        <Button type="submit" disabled={loading} fullWidth>
           {loading ? 'Verifying...' : 'Continue'}
         </Button>
       </form>
@@ -98,7 +73,7 @@ const LoginForm = () => {
   return (
     <div>
       <AccessCodeForm redirectPath="/" />
-      
+
       {/* Add back button */}
       <div className="mt-4">
         <Button

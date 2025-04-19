@@ -11,7 +11,9 @@ interface AccessCodeFormProps {
   redirectPath?: string; // Add this to make the redirect path configurable
 }
 
-const AccessCodeForm = ({ redirectPath = '/access-code' }: AccessCodeFormProps) => {
+const AccessCodeForm = ({
+  redirectPath = '/access-code',
+}: AccessCodeFormProps) => {
   const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,14 +31,17 @@ const AccessCodeForm = ({ redirectPath = '/access-code' }: AccessCodeFormProps) 
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/pairwise/verify-access-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:3001/pairwise/verify-access-code',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ accessCode }),
+          credentials: 'include',
         },
-        body: JSON.stringify({ accessCode }),
-        credentials: 'include'
-      });
+      );
 
       const data = await response.json();
 
@@ -54,8 +59,10 @@ const AccessCodeForm = ({ redirectPath = '/access-code' }: AccessCodeFormProps) 
 
   return (
     <form onSubmit={handleSubmit}>
-      <p className="pb-6">Check your email for an access code to login to PairWise.</p>
-      
+      <p className="pb-6">
+        Check your email for an access code to login to PairWise.
+      </p>
+
       <FormInput
         id="access-code"
         label="Access Code"
@@ -67,11 +74,7 @@ const AccessCodeForm = ({ redirectPath = '/access-code' }: AccessCodeFormProps) 
 
       <ErrorMessage message={error} />
 
-      <Button
-        type="submit"
-        disabled={loading}
-        fullWidth
-      >
+      <Button type="submit" disabled={loading} fullWidth>
         {loading ? 'Confirming Access Code...' : 'Confirm Code'}
       </Button>
     </form>
