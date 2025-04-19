@@ -8,9 +8,9 @@ create_empty_file() {
     touch "$filename"
 }
 
-create_empty_file "test-voter-file.csv"
-create_empty_file "test-external-file-1.csv"
-create_empty_file "test-external-file-2.csv"
+create_empty_file "./test-files/test-voter-file.csv"
+create_empty_file "./test-files/test-external-file-1.csv"
+create_empty_file "./test-files/test-external-file-2.csv"
 create_empty_file "./mock-api/data.json"
 echo '[ ]' > mock-api/data.json
 
