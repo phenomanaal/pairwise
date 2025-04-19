@@ -11,7 +11,7 @@ interface MatchingFilesViewProps {
   totalMatches: number;
   completedMatches: number;
   allMatchesCompleted: boolean;
-  onBeginMatching: () => void;
+  onBeginMatching: (fileId: string) => void;
   onViewResults: (file: FileData) => void;
   onContinue: () => void;
 }

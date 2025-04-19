@@ -1,9 +1,11 @@
 'use client';
 import Link from 'next/link';
 import { useAuth } from '@/app/hooks/useAuth'
+import { useRouter } from 'next/navigation';;
 
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
+  const router = useRouter();
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white text-black border border-black">
@@ -26,7 +28,7 @@ const Navbar = () => {
           </Link>
 
           <button
-            onClick={isAuthenticated ? logout : () => window.location.href = '/login'}
+            onClick={isAuthenticated ? logout : () => router.push('/login')}
             className="px-3 py-1 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
           >
             {isAuthenticated ? 'Logout' : 'Login'}

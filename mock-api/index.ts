@@ -198,6 +198,33 @@ server.post('/pairwise/match', {
 
 });
 
+server.post('/pairwise/download', {
+  preHandler: server.authenticate
+}, async (request: FastifyRequest, reply: FastifyReply) => {
+  const body = request.body;
+  const { id } = request.body as { id: string; };
+
+  const parts = request.parts();
+  let fileData: FileData[] = [];
+  try {
+
+
+    const data = await fs.promises.readFile('data.json', 'utf8');
+    fileData = JSON.parse(data) as FileData[];
+
+    const fileIndex = fileData.findIndex(file => file.id === id);
+    if (fileIndex !== -1) {
+      fileData[fileIndex].downloadStatus = true;
+
+      await fs.promises.writeFile('data.json', JSON.stringify(fileData, null, 2), 'utf8');
+    }
+    return reply.status(200).send({message: `downloadStatus of file ${id} set to true.`})
+  } catch (error) { 
+    return reply.status(400).send({ message: String(error) });
+  }
+
+});
+
 
 server.post('/pairwise/file', {
   preHandler: server.authenticate
@@ -206,8 +233,8 @@ server.post('/pairwise/file', {
   let fileName: string = '';
   let fileType: string = '';
   let externalFileType: string | null = null;
-  const matchStatus = false;
-  const downloadStatus = false;
+  let matchStatus = false;
+  let downloadStatus = false;
 
   for await (const part of parts) {
     if (part.type === 'file') {
@@ -216,6 +243,8 @@ server.post('/pairwise/file', {
 
     if (part.type === "field" && part.fieldname === "fileType") {
       fileType = String(part.value);
+      matchStatus = fileType === 'voter';
+      downloadStatus = fileType === 'voter';
     }
 
     if (part.type === "field" && part.fieldname === "externalFileType") {

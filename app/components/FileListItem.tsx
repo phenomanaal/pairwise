@@ -5,7 +5,7 @@ import { FileData } from './CurrentFilesList';
 interface FileListItemProps {
   file: FileData;
   isMatching: boolean;
-  onBeginMatching: () => void;
+  onBeginMatching: (fileId: string) => void;
   onViewResults: (file: FileData) => void;
 }
 
@@ -28,27 +28,8 @@ const FileListItem: React.FC<FileListItemProps> = ({
     return typeMap[type] || type;
   };
 
-  const handleMatching = async () => { 
-    try {
-      const response = await fetch('http://localhost:3001/pairwise/match', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: file.id
-        }),
-      });
-
-      if (response.ok) {
-        onBeginMatching();
-      } else {
-        console.error('Matching API request failed:', await response.text());
-      }
-    } catch (error) {
-      console.error('Error calling matching API:', error);
-    }
+  const handleMatchingClick = () => {
+    onBeginMatching(file.id);
   };
 
   const renderMatchingControls = () => {
@@ -59,25 +40,29 @@ const FileListItem: React.FC<FileListItemProps> = ({
       typeMap[file.externalFileType];
     
     if (!isValidForMatching) return null;
+
+    // If matchStatus is true, always show Results Overview button
+    if (file.matchStatus) {
+      return (
+        <div className="ml-4 flex items-center">
+          <span className="text-green-600 font-semibold mr-3">Completed</span>
+          <Button onClick={() => onViewResults(file)}>
+            Results Overview
+          </Button>
+        </div>
+      );
+    }
     
+    // Otherwise follow the matchingStatus logic
     switch (file.matchingStatus) {
       case 'active':
         return (
           <Button 
-            onClick={handleMatching}
+            onClick={handleMatchingClick}
             className="ml-4"
           >
             Begin Matching
           </Button>
-        );
-      case 'completed':
-        return (
-          <div className="ml-4 flex items-center">
-            <span className="text-green-600 font-semibold mr-3">Completed</span>
-            <Button onClick={() => onViewResults(file)}>
-              Results Overview
-            </Button>
-          </div>
         );
       case 'pending':
         return (

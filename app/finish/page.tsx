@@ -1,14 +1,13 @@
-// app/download/page.tsx
 import Box from '@/app/components/Box';
-import DownloadResults from '@/app/components/DownloadResults';
 import Navbar from '@/app/components/Navbar';
 import ProtectedRoute from '../components/ProtectedRoute';
+import Confirmation from '../components/Confirmation'
 
 export default function DownloadPage() {
   const sections = [
     {
-      title: 'Download Results:',
-      children: <DownloadResults />
+      title: 'Confirmation',
+          children: <Confirmation/>
     }
   ];
   

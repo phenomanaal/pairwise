@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ProcessingPopup from './ui/ProcessingPopup';
 import SuccessPopup from './ui/SuccessPopup';
-import MatchingFilesView from './MatchingFilesViews'
+import MatchingFilesView from './MatchingFilesViews';
 import ResultsOverview from './ResultsOverview';
 
 export interface FileData {
@@ -11,7 +12,7 @@ export interface FileData {
   fileType: string;
   externalFileType: string | null;
   fileName: string;
-  matchStatus: boolean;
+  matchStatus: boolean; 
   downloadStatus: boolean;
   matchingStatus?: 'pending' | 'active' | 'completed';
 }
@@ -34,6 +35,7 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
   const [allMatchesCompleted, setAllMatchesCompleted] = useState<boolean>(false);
   const [showResultsOverview, setShowResultsOverview] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
+  const router = useRouter()
 
   const validExternalFileTypes = {
     'state-dept-corrections-felons-list': true,
@@ -66,6 +68,8 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
           
           setTotalMatches(validExternalFiles.length);    
 
+          const alreadyMatchedCount = validExternalFiles.filter(file => file.matchStatus).length;
+          
           const processedFiles = data.map((file: FileData) => {
             const isValidMatchingFile = 
               file.fileType === 'external' && 
@@ -80,26 +84,34 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
                 )
               : -1;            
 
+
+            let matchingStatus;
+            if (file.matchStatus) {
+              matchingStatus = 'completed';
+            } else if (validFileIndex === 0) {
+              matchingStatus = 'active';
+            } else if (validFileIndex > 0) {
+              matchingStatus = 'pending';
+            }
+
             return {
               ...file,
-              matchingStatus: validFileIndex === 0 
-                ? 'active' 
-                : validFileIndex > 0 
-                  ? 'pending' 
-                  : undefined
+              matchingStatus
             };
           });
           
           setFiles(processedFiles);          
 
-          const activeIndex = processedFiles.findIndex(file => file.matchingStatus === 'active');
-          if (activeIndex !== -1) {
-            setActiveFileIndex(activeIndex);
+          setCompletedMatches(alreadyMatchedCount);
+          
+          if (alreadyMatchedCount === 0) {
+            const activeIndex = processedFiles.findIndex(file => file.matchingStatus === 'active');
+            if (activeIndex !== -1) {
+              setActiveFileIndex(activeIndex);
+            }
           }
           
-          const completed = processedFiles.filter(file => file.matchingStatus === 'completed').length;
-          setCompletedMatches(completed);
-          setAllMatchesCompleted(completed === validExternalFiles.length && validExternalFiles.length > 0);
+          setAllMatchesCompleted(alreadyMatchedCount === validExternalFiles.length && validExternalFiles.length > 0);
         } else {
           setFiles(data);
         }
@@ -116,13 +128,33 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
     fetchFiles();
   }, [matching]);
 
-  const handleBeginMatching = () => {
+  const handleBeginMatching = async (fileId: string) => {
     setIsProcessing(true);
     
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://localhost:3001/pairwise/match', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: fileId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Matching API request failed');
+      }
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+        setShowSuccessPopup(true);
+      }, 2000);
+    } catch (error) {
+      console.error('Error during matching:', error);
       setIsProcessing(false);
-      setShowSuccessPopup(true);
-    }, 2000);
+    }
   };
 
   const handleContinue = () => {
@@ -131,6 +163,7 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
     const updatedFiles = [...files];
     
     updatedFiles[activeFileIndex].matchingStatus = 'completed';
+    updatedFiles[activeFileIndex].matchStatus = true;
     
     const newCompletedCount = completedMatches + 1;
     setCompletedMatches(newCompletedCount);
@@ -152,7 +185,7 @@ const CurrentFilesList = ({ matching = false, onAllMatchesComplete }: CurrentFil
       onAllMatchesComplete();
     }
     
-    window.location.href = '/download';
+    router.push('/download');
   };
 
   const handleViewResults = (file: FileData) => {
