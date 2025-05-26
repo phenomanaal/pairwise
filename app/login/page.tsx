@@ -5,7 +5,7 @@ import Navbar from '@/app/components/Navbar';
 export default function LoginPage() {
   const sections = [
     {
-      title: 'PairWise Login',
+      title: <div>PairWise Login<br/>Welcome TBD</div>,
       children: <LoginForm />,
     },
   ];

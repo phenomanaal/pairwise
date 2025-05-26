@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Section {
-  title: string;
+  title: string | React.ReactElement;
   children: React.ReactNode;
 }
 
