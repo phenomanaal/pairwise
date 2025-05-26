@@ -27,7 +27,7 @@ const LoginForm = () => {
       if (success) {
         setCurrentStep('accessCode');
       } else {
-        setError('Invalid credentials');
+        setError('Retry TOTP TBD');
       }
     } catch (err) {
       setError(`An unexpected error occurred: ${err}`);

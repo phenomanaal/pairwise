@@ -47,7 +47,11 @@ const AccessCodeForm = ({
       if (response.ok) {
         router.push(redirectPath);
       } else {
-        setError(data.message || 'An error occurred. Please try again.');
+        if (data.message === 'Invalid access code. Please try again.') { 
+          setError('Retry access code TBD');
+        } else {
+          setError(data.message || 'An error occurred. Please try again.');
+         }
       }
     } catch {
       setError('An unexpected error occurred');
@@ -59,7 +63,7 @@ const AccessCodeForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <p className="pb-6">
-        Check your email for an access code to login to PairWise.
+        Check your email access code TBD.
       </p>
 
       <FormInput
