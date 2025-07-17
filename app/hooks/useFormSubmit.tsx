@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 interface UseFormSubmitProps {
   endpoint: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: unknown) => void;
   redirectTo?: string;
 }
 
@@ -20,7 +20,7 @@ export const useFormSubmit = ({
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const submitForm = async (formData: any) => {
+  const submitForm = async (formData: unknown) => {
     setError('');
     setLoading(true);
 

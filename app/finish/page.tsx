@@ -6,7 +6,7 @@ import Confirmation from '../components/Confirmation';
 export default function DownloadPage() {
   const sections = [
     {
-      title: 'Confirmation',
+      title: 'Clear All Data',
       children: <Confirmation />,
     },
   ];
@@ -15,7 +15,7 @@ export default function DownloadPage() {
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} width="30" />
+        <Box sections={sections} width="30" showProgress={true} />
       </div>
     </ProtectedRoute>
   );

@@ -6,7 +6,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 export default function MatchFilePage() {
   const sections = [
     {
-      title: 'Current Files:',
+      title: 'List Matching',
       children: <CurrentFilesList matching={true} />,
     },
   ];
@@ -14,7 +14,7 @@ export default function MatchFilePage() {
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} width="30" />
+        <Box sections={sections} width="800px" showProgress={true} />
       </div>
     </ProtectedRoute>
   );

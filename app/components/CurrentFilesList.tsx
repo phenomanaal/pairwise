@@ -43,7 +43,7 @@ const CurrentFilesList = ({
   const router = useRouter();
 
   useEffect(() => {
-    const validExternalFileTypes = {
+    const validExternalFileTypes: Record<string, boolean> = {
       'state-dept-corrections-felons-list': true,
       'dept-of-vital-stats-deceased-list': true,
       'change-of-address-record': true,
@@ -75,7 +75,7 @@ const CurrentFilesList = ({
           setTotalMatches(validExternalFiles.length);
 
           const alreadyMatchedCount = validExternalFiles.filter(
-            (file) => file.matchStatus,
+            (file: FileData) => file.matchStatus,
           ).length;
 
           const processedFiles = data.map((file: FileData) => {
@@ -86,7 +86,7 @@ const CurrentFilesList = ({
 
             const validFileIndex = isValidMatchingFile
               ? validExternalFiles.findIndex(
-                  (vFile) =>
+                  (vFile: FileData) =>
                     vFile.fileName === file.fileName &&
                     vFile.fileType === file.fileType &&
                     vFile.externalFileType === file.externalFileType,
@@ -114,7 +114,7 @@ const CurrentFilesList = ({
 
           if (alreadyMatchedCount === 0) {
             const activeIndex = processedFiles.findIndex(
-              (file) => file.matchingStatus === 'active',
+              (file: FileData) => file.matchingStatus === 'active',
             );
             if (activeIndex !== -1) {
               setActiveFileIndex(activeIndex);
@@ -182,7 +182,7 @@ const CurrentFilesList = ({
     setCompletedMatches(newCompletedCount);
 
     const nextPendingIndex = updatedFiles.findIndex(
-      (file) => file.matchingStatus === 'pending',
+      (file: FileData) => file.matchingStatus === 'pending',
     );
 
     if (nextPendingIndex !== -1) {

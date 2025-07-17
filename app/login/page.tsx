@@ -12,7 +12,7 @@ export default function LoginPage() {
   return (
     <div>
       <Navbar />
-      <Box sections={sections} width="md" />
+      <Box sections={sections} width="500px" showProgress={false} />
     </div>
   );
 }

@@ -7,6 +7,8 @@ interface ButtonProps {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'disabled';
   fullWidth?: boolean;
+  className?: string;
+  title?: string;
 }
 
 const Button = ({
@@ -16,6 +18,8 @@ const Button = ({
   children,
   variant = 'primary',
   fullWidth = false,
+  className = '',
+  title = '',
 }: ButtonProps) => {
   const baseClasses =
     'py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-black';
@@ -32,7 +36,8 @@ const Button = ({
       type={type}
       onClick={onClick}
       disabled={disabled || variant === 'disabled'}
-      className={`${baseClasses} ${variantClasses[variant]} ${widthClass}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${widthClass} ${className}`}
+      title={title}
     >
       {children}
     </button>

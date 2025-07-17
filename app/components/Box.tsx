@@ -1,4 +1,5 @@
 import React from 'react';
+import ProgressIndicator from './ProgressIndicator';
 
 interface Section {
   title: string | React.ReactElement;
@@ -8,9 +9,10 @@ interface Section {
 interface BoxProps {
   sections: Section[];
   width?: string;
+  showProgress?: boolean;
 }
 
-const Box: React.FC<BoxProps> = ({ sections, width = 'sm' }) => {
+const Box: React.FC<BoxProps> = ({ sections, width = 'sm', showProgress = true }) => {
   const standardSizes = [
     'sm',
     'md',
@@ -47,19 +49,22 @@ const Box: React.FC<BoxProps> = ({ sections, width = 'sm' }) => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-white">
-      {sections.map((section: Section, index) => (
-        <div
-          key={index}
-          className={`bg-white p-8 rounded-2xl w-full border border-black mx-5 ${maxWidthClass}`}
-          style={maxWidth ? { maxWidth } : undefined}
-        >
-          <h2 className="text-2xl font-semibold text-center text-black mb-6">
-            {section.title}
-          </h2>
-          {section.children}
-        </div>
-      ))}
+    <div className="min-h-screen bg-white flex flex-col pt-16">
+      {showProgress && <ProgressIndicator />}
+      <div className="flex-1 flex justify-center items-center bg-white">
+        {sections.map((section: Section, index) => (
+          <div
+            key={index}
+            className={`bg-white p-8 rounded-2xl border border-black mx-5 ${maxWidthClass}`}
+            style={maxWidth ? { maxWidth, width: maxWidth } : undefined}
+          >
+            <h2 className="text-2xl font-semibold text-center text-black mb-6">
+              {section.title}
+            </h2>
+            {section.children}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

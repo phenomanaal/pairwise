@@ -7,7 +7,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 export default function DownloadPage() {
   const sections = [
     {
-      title: 'Download Results:',
+      title: 'Download Results',
       children: <DownloadResults />,
     },
   ];
@@ -16,7 +16,7 @@ export default function DownloadPage() {
     <ProtectedRoute>
       <div>
         <Navbar />
-        <Box sections={sections} width="30" />
+        <Box sections={sections} width="800px" showProgress={true} />
       </div>
     </ProtectedRoute>
   );

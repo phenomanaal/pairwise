@@ -18,7 +18,13 @@ const CompletionTracker: React.FC<CompletionTrackerProps> = ({
     <div className="mt-8 border-t pt-4">
       <div className="flex flex-col items-center">
         <div className="font-medium text-gray-700 mb-4">
-          {completedMatches} of {totalMatches} Matches Complete
+          {allMatchesCompleted ? (
+            <div>
+              <p className="mb-4">List Matching is complete. Please Continue to obtain the complete list match output data.</p>
+            </div>
+          ) : (
+            <p>{completedMatches} of {totalMatches} Matches Complete</p>
+          )}
         </div>
 
         <Button

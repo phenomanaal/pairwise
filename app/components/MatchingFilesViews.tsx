@@ -30,7 +30,7 @@ const MatchingFilesView: React.FC<MatchingFilesViewProps> = ({
 }) => {
   return (
     <>
-      <p>You uploaded the following files successfully:</p>
+      <p>You have uploaded {totalMatches} files for matching with the voter list. For each one, please click &quot;Begin Matching&quot;. After matching is complete, you will see some high level match information. After you have performed all the matching, you can continue to download the full matching data output files.</p>
 
       {loading && <p className="mt-4">Loading files...</p>}
 

@@ -1,87 +1,79 @@
 'use client';
 import React from 'react';
-import { useState } from 'react';
-import Button from './ui/Button';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
 const Confirmation = ({}) => {
   const { logout } = useAuth();
   const router = useRouter();
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const onFinish = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    logout();
-    router.push('/login');
-  };
+  const [step, setStep] = useState(1);
 
-  const handleFinishClick = async () => {
-    setShowConfirmModal(false);
-    setIsDeleting(true);
+  useEffect(() => {
+    const timer1 = setTimeout(() => {
+      setStep(2);
+    }, 3000);
 
-    try {
-      await onFinish();
-    } catch (error) {
-      console.error('Error during deletion:', error);
-      setIsDeleting(false);
-    }
-  };
+    const timer2 = setTimeout(() => {
+      setStep(3);
+    }, 6000);
 
-  return (
-    <div className="mt-8 border-t pt-4">
+    const timer3 = setTimeout(() => {
+      setStep(4);
+    }, 9000);
+
+    const timer4 = setTimeout(() => {
+      logout();
+      router.push('/login');
+    }, 12000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+    };
+  }, [logout, router]);
+
+  if (step === 1) {
+    return (
       <div>
-        Please check that all results files have been downloaded successfully,
-        and confirm completion
+        <p className="pb-6">
+          Now that you&apos;ve confirmed completion of your list matching, and you&apos;ve downloaded all the results data, the final step is to clear all the data, including input files, voter data, results data, results files, and any working data. Pairwise does not retain any data that you provided or generated. In a few seconds, the data clearing process will begin automatically, and after completion you will be logged out.
+        </p>
       </div>
-      <div className="flex flex-col items-center mt-6">
-        <Button onClick={() => setShowConfirmModal(true)} className="px-8">
-          Confirm
-        </Button>
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+        <p className="text-lg text-gray-700">Clearing all data...</p>
       </div>
+    );
+  }
 
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium mb-4">Are you sure?</h3>
-            <p className="mb-6">
-              Clicking Finish will delete ALL data. This step cannot be undone.
-            </p>
+  if (step === 3) {
+    return (
+      <div>
+        <p className="pb-6">
+          All session data has been deleted. You will now be automatically logged out.
+        </p>
+      </div>
+    );
+  }
 
-            <div className="flex justify-end space-x-4">
-              <Button
-                onClick={() => setShowConfirmModal(false)}
-                variant="outline"
-                className="px-4"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleFinishClick}
-                className="px-4 bg-red-600 hover:bg-red-700"
-              >
-                Finish
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+  if (step === 4) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+        <p className="text-lg text-gray-700">Logging out...</p>
+      </div>
+    );
+  }
 
-      {isDeleting && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-            <div
-              className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-t-transparent mb-4"
-              role="status"
-            >
-              <span className="sr-only">Loading...</span>
-            </div>
-            <p className="text-lg">Deleting all data...</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return null;
 };
 
 export default Confirmation;

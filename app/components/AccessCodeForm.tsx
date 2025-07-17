@@ -63,7 +63,7 @@ const AccessCodeForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <p className="pb-6">
-        Check your email access code TBD.
+        Check email for access code TBD
       </p>
 
       <FormInput
@@ -72,13 +72,14 @@ const AccessCodeForm = ({
         value={accessCode}
         onChange={(e) => setAccessCode(e.target.value)}
         placeholder="Enter access code"
+        autoComplete="one-time-code"
         required
       />
 
       <ErrorMessage message={error} />
 
       <Button type="submit" disabled={loading} fullWidth>
-        {loading ? 'Confirming Access Code...' : 'Confirm Code'}
+        {loading ? 'Confirming Access Code...' : 'Login'}
       </Button>
     </form>
   );

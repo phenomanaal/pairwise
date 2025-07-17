@@ -58,13 +58,14 @@ const LoginForm = () => {
           value={oneTimePassword}
           onChange={(e) => setOneTimePassword(e.target.value)}
           placeholder="Enter your password"
+          autoComplete="new-password"
           required
         />
 
         <ErrorMessage message={error} />
 
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Verifying...' : 'Continue'}
+          {loading ? 'Verifying...' : 'Login'}
         </Button>
       </form>
     );

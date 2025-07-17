@@ -64,11 +64,11 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       }));
 
       const externalFilesCount = processedResults.filter(
-        (r) => r.fileType != 'voter',
+        (r: MatchResult) => r.fileType != 'voter',
       ).length;
 
       const alreadyDownloadedCount = processedResults.filter(
-        (r) => r.downloadingStatus === 'downloaded' && r.fileType != 'voter',
+        (r: MatchResult) => r.downloadingStatus === 'downloaded' && r.fileType != 'voter',
       ).length;
 
       setResults(processedResults);
@@ -130,7 +130,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       if (result.id === currentDownloadId) {
         return {
           ...result,
-          downloadingStatus: 'downloaded',
+          downloadingStatus: 'downloaded' as const,
           downloadStatus: true,
         };
       }
@@ -152,7 +152,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       onAllDownloadsComplete();
     }
 
-    router.push('/finish');
+    router.push('/confirm-completion');
   };
 
   if (generating) {
@@ -160,7 +160,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       <div className="flex flex-col items-center justify-center py-10">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
         <p className="text-lg text-gray-700">
-          Generating Results Files for Download...
+          Generating results file for download...
         </p>
       </div>
     );
@@ -168,7 +168,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
 
   return (
     <div className="relative">
-      <p>The following match results are ready for download:</p>
+      <p>The following results files are available for download:</p>
 
       {loading && <p className="mt-4">Loading results...</p>}
 
@@ -205,7 +205,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
                     ) : (
                       <div className="ml-4 flex items-center">
                         <span className="text-green-600 font-semibold">
-                          Results Downloaded
+                          Download Complete
                         </span>
                       </div>
                     )}

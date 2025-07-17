@@ -9,6 +9,7 @@ interface FormInputProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  autoComplete?: string;
 }
 
 const FormInput = ({
@@ -20,6 +21,7 @@ const FormInput = ({
   placeholder = '',
   required = false,
   disabled = false,
+  autoComplete,
 }: FormInputProps) => {
   return (
     <div className="mb-4">
@@ -35,6 +37,7 @@ const FormInput = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        autoComplete={autoComplete}
       />
     </div>
   );
