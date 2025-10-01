@@ -1,5 +1,6 @@
 'use client';
 import Button from './Button';
+import { strings } from '@/app/utils/strings';
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -17,8 +18,8 @@ const ConfirmationDialog = ({
   message,
   onConfirm,
   onCancel,
-  confirmText = 'Yes',
-  cancelText = 'No',
+  confirmText = strings.buttons.yes,
+  cancelText = strings.buttons.no,
 }: ConfirmationDialogProps) => {
   if (!isOpen) return null;
 

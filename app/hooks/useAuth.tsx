@@ -8,6 +8,7 @@ import {
   ReactNode,
 } from 'react';
 import { useRouter } from 'next/navigation';
+import { strings } from '@/app/utils/strings';
 
 interface User {
   username: string;
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       return false;
     } catch (error) {
-      console.error('Auth check error:', error);
+      console.error(strings.errors.authCheckError, error);
       return false;
     }
   };
@@ -80,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return response.ok;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error(strings.errors.loginError, error);
       return false;
     }
   };
@@ -105,7 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       return false;
     } catch (error) {
-      console.error('Access code verification error:', error);
+      console.error(strings.errors.accessCodeError, error);
       return false;
     }
   };
@@ -121,7 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       router.push('/login');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error(strings.errors.logoutError, error);
     }
   };
 
@@ -145,7 +146,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error(strings.errors.authRequiredError);
   }
   return context;
 };

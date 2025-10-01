@@ -11,6 +11,7 @@ import Box from './Box';
 import Button from './ui/Button';
 import Navbar from './Navbar';
 import ProtectedRoute from './ProtectedRoute';
+import { strings } from '@/app/utils/strings';
 
 export interface FileData {
   id: string;
@@ -65,7 +66,7 @@ const CurrentFilesList = ({
         });
 
         if (!response.ok) {
-          throw new Error(`Server responded with status ${response.status}`);
+          throw new Error(strings.errors.serverStatus.replace('{status}', String(response.status)));
         }
 
         const data = await response.json();
@@ -138,7 +139,7 @@ const CurrentFilesList = ({
         setError(null);
       } catch (err) {
         console.error('Error fetching files:', err);
-        setError('Failed to load files. Please try again later.');
+        setError(strings.errors.failedToLoad);
       } finally {
         setLoading(false);
       }
@@ -248,21 +249,21 @@ const CurrentFilesList = ({
 
       <ProcessingPopup
         isOpen={isProcessing}
-        title="Processing"
-        message="Matching files in progress..."
+        title={strings.popupTitles.processing}
+        message={strings.processing.matchingInProgress}
       />
 
       <SuccessPopup
         isOpen={showSuccessPopup}
-        title="Matching Complete"
-        message="The matching process has completed successfully."
+        title={strings.popupTitles.matchingComplete}
+        message={strings.success.matchingComplete}
         onContinue={handleContinue}
       />
 
     <ErrorPopup
       isOpen={showMatchError}
-      title="Server Error"
-      message="There was an error with the matching process. Try again in a few moments..."
+      title={strings.popupTitles.serverError}
+      message={strings.errors.matchingServerError}
       onContinue={handleRetryMatching}
     />
     </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import FileListItem from './FileListItem';
 import CompletionTracker from './CompletionTracker';
 import { FileData } from './CurrentFilesList';
+import { strings, formatString } from '@/app/utils/strings';
 
 interface MatchingFilesViewProps {
   files: FileData[];
@@ -30,14 +31,14 @@ const MatchingFilesView: React.FC<MatchingFilesViewProps> = ({
 }) => {
   return (
     <>
-      <p>You have uploaded {totalMatches} files for matching with the voter list. For each one, please click &quot;Begin Matching&quot;. After matching is complete, you will see some high level match information. After you have performed all the matching, you can continue to download the full matching data output files.</p>
+      <p>{formatString(strings.instructions.matchingInstructions, { count: String(totalMatches) })}</p>
 
-      {loading && <p className="mt-4">Loading files...</p>}
+      {loading && <p className="mt-4">{strings.common.loadingFiles}</p>}
 
       {error && <p className="mt-4 text-red-500">{error}</p>}
 
       {!loading && !error && files.length === 0 && (
-        <p className="mt-4 italic">No files have been uploaded yet.</p>
+        <p className="mt-4 italic">{strings.status.noFiles}</p>
       )}
 
       {!loading && !error && files.length > 0 && (

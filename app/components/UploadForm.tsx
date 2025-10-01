@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Button from './ui/Button';
 import FileSelect from './ui/FileSelect';
 import ConfirmationDialog from './ui/ConfirmationDialog';
+import { strings, formatString } from '@/app/utils/strings';
 
 const externalFileTypes = [
   {
@@ -53,7 +54,7 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
     e.preventDefault();
 
     if (!file) {
-      setMsg('Please select a file to upload');
+      setMsg(strings.errors.pleaseSelectFile);
       setMsgType('error');
       return;
     } else if (msgType === 'success') {
@@ -81,7 +82,7 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
       });
 
       if (response.ok) {
-        setMsg('Upload Complete.');
+        setMsg(strings.success.uploadComplete);
         setMsgType('success');
 
         if (fileType !== 'external') {
@@ -89,12 +90,12 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
         }
       } else {
         const data = await response.json();
-        setMsg(data.message || 'An error occurred. Please try again.');
+        setMsg(data.message || strings.errors.generic);
         setMsgType('error');
       }
     } catch (error) {
       console.log(error);
-      setMsg('An unexpected error occurred');
+      setMsg(strings.errors.unexpected);
       setMsgType('error');
     } finally {
       setLoading(false);
@@ -104,7 +105,7 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
   return (
     <form onSubmit={handleSubmit}>
       <p className="pb-6">
-        Please provide a current {fileType} file for Fallaron.
+        {formatString(strings.instructions.provideVoterFile, { fileType })}
       </p>
 
       <div className="mb-4">
@@ -116,7 +117,7 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
             className="w-full font-sans text-base py-2 px-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
           >
             <option value="" disabled>
-              Select Data Type
+              {strings.labels.selectDataType}
             </option>
             {externalFileTypes.map((type) => (
               <option key={type.value} value={type.value}>
@@ -144,19 +145,19 @@ const UploadForm = ({ fileType }: UploadFormProps) => {
 
       <div className="flex flex-col gap-4">
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Uploading...' : 'Submit File'}
+          {loading ? strings.processing.uploading : strings.buttons.submitFile}
         </Button>
 
         {fileType === 'external' && (
           <Button onClick={handleFinishUploading} fullWidth>
-            Finished Uploading External Files
+            {strings.buttons.finishedUploading}
           </Button>
         )}
       </div>
 
       <ConfirmationDialog
         isOpen={showConfirmation}
-        title="Are you ready to begin matching?"
+        title={strings.confirmations.readyToMatch}
         onConfirm={() => handleConfirmation(true)}
         onCancel={() => handleConfirmation(false)}
       />

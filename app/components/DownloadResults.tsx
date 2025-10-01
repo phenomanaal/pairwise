@@ -6,6 +6,7 @@ import Button from './ui/Button';
 import ProcessingPopup from './ui/ProcessingPopup';
 import SuccessPopup from './ui/SuccessPopup';
 import ErrorPopup from './ui/ErrorPopup';
+import { strings, formatString } from '@/app/utils/strings';
 
 interface MatchResult {
   fileType: string;
@@ -90,7 +91,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       setError(null);
     } catch (err) {
       console.error('Error fetching results:', err);
-      setError('Failed to load results. Please try again later.');
+      setError(strings.errors.failedToLoadResults);
     } finally {
       setLoading(false);
     }
@@ -120,7 +121,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       });
 
       if (!response.ok) {
-        throw new Error('Download API request failed');
+        throw new Error(strings.errors.downloadApiError);
       }
 
       setTimeout(() => {
@@ -130,7 +131,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
     } catch (error) {
       console.error('Error during download:', error);
       setIsProcessing(false);
-      setErrorMessage('Failed to download file. Please try again.');
+      setErrorMessage(strings.errors.downloadFailed);
       setShowErrorPopup(true);
     }
   };
@@ -175,7 +176,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       <div className="flex flex-col items-center justify-center py-10">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
         <p className="text-lg text-gray-700">
-          Generating results file for download...
+          {strings.processing.generatingResults}
         </p>
       </div>
     );
@@ -183,14 +184,14 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
 
   return (
     <div className="relative">
-      <p>The following results files are available for download:</p>
+      <p>{strings.instructions.resultsAvailable}</p>
 
-      {loading && <p className="mt-4">Loading results...</p>}
+      {loading && <p className="mt-4">{strings.common.loadingResults}</p>}
 
       {error && <p className="mt-4 text-red-500">{error}</p>}
 
       {!loading && !error && results.length === 0 && (
-        <p className="mt-4 italic">No results are available for download.</p>
+        <p className="mt-4 italic">{strings.status.noResults}</p>
       )}
 
       {!loading && !error && results.length > 0 && (
@@ -216,12 +217,12 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
                           onClick={() => handleDownload(result.id)}
                           className="ml-4"
                         >
-                          Download Results
+                          {strings.buttons.downloadResults}
                         </Button>
                       ) : (
                         <div className="ml-4 flex items-center">
                           <span className="text-green-600 font-semibold">
-                            Download Complete
+                            {strings.status.downloadCompleteStatus}
                           </span>
                         </div>
                       )}
@@ -244,7 +245,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
           <div className="mt-8 border-t pt-4">
             <div className="flex flex-col items-center">
               <div className="font-medium text-gray-700 mb-4">
-                {downloadedCount} of {totalDownloads} Results Downloaded
+                {formatString(strings.status.downloadsComplete, { count: String(downloadedCount), total: String(totalDownloads) })}
               </div>
 
               <Button
@@ -252,7 +253,7 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
                 variant={allDownloadsCompleted ? 'primary' : 'disabled'}
                 className="px-8"
               >
-                Continue
+                {strings.buttons.continue}
               </Button>
             </div>
           </div>
@@ -261,20 +262,20 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
 
       <ProcessingPopup
         isOpen={isProcessing}
-        title="Processing"
-        message="Downloading file..."
+        title={strings.popupTitles.processing}
+        message={strings.processing.downloadingFile}
       />
 
       <SuccessPopup
         isOpen={showSuccessPopup}
-        title="Download Complete"
-        message="The file has been successfully downloaded."
+        title={strings.popupTitles.downloadComplete}
+        message={strings.success.downloadComplete}
         onContinue={handleDownloadComplete}
       />
 
       <ErrorPopup
         isOpen={showErrorPopup}
-        title="Download Error"
+        title={strings.popupTitles.downloadError}
         message={errorMessage}
         onContinue={() => setShowErrorPopup(false)}
       />

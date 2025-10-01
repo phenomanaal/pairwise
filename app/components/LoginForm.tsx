@@ -6,6 +6,7 @@ import Button from './ui/Button';
 import ErrorMessage from './ui/ErrorMessage';
 import AccessCodeForm from './AccessCodeForm';
 import { useAuth } from '@/app/hooks/useAuth';
+import { strings } from '@/app/utils/strings';
 
 const LoginForm = () => {
   const [currentStep, setCurrentStep] = useState<'credentials' | 'accessCode'>(
@@ -27,10 +28,10 @@ const LoginForm = () => {
       if (success) {
         setCurrentStep('accessCode');
       } else {
-        setError('Retry TOTP TBD');
+        setError(strings.errors.retryTOTP);
       }
     } catch (err) {
-      setError(`An unexpected error occurred: ${err}`);
+      setError(strings.errors.unexpectedWithDetail.replace('{error}', String(err)));
     } finally {
       setLoading(false);
     }
@@ -44,20 +45,20 @@ const LoginForm = () => {
       <form onSubmit={handleCredentialsSubmit}>
         <FormInput
           id="username"
-          label="Username:"
+          label={strings.labels.username}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter your username"
+          placeholder={strings.placeholders.username}
           required
         />
 
         <FormInput
           id="oneTimePassword"
-          label="One Time Password:"
+          label={strings.labels.oneTimePassword}
           type="password"
           value={oneTimePassword}
           onChange={(e) => setOneTimePassword(e.target.value)}
-          placeholder="Enter your password"
+          placeholder={strings.placeholders.password}
           autoComplete="new-password"
           required
         />
@@ -65,7 +66,7 @@ const LoginForm = () => {
         <ErrorMessage message={error} />
 
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Verifying...' : 'Login'}
+          {loading ? strings.processing.verifying : strings.buttons.login}
         </Button>
       </form>
     );
@@ -82,7 +83,7 @@ const LoginForm = () => {
           onClick={handleBack}
           fullWidth
         >
-          Back
+          {strings.buttons.back}
         </Button>
       </div>
     </div>

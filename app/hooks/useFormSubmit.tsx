@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { strings } from '@/app/utils/strings';
 
 interface UseFormSubmitProps {
   endpoint: string;
@@ -39,10 +40,10 @@ export const useFormSubmit = ({
         if (onSuccess) onSuccess(data);
         if (redirectTo) router.push(redirectTo);
       } else {
-        setError(data.message || 'An error occurred. Please try again.');
+        setError(data.message || strings.errors.generic);
       }
     } catch (err) {
-      setError(`An unexpected error occurred: ${err}`);
+      setError(strings.errors.unexpectedWithDetail.replace('{error}', String(err)));
     } finally {
       setLoading(false);
     }

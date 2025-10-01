@@ -1,5 +1,6 @@
 'use client';
 import Button from './Button';
+import { strings } from '@/app/utils/strings';
 
 interface SuccessPopupProps {
   isOpen: boolean;
@@ -14,7 +15,7 @@ const SuccessPopup = ({
   title,
   message,
   onContinue,
-  buttonText = 'Continue',
+  buttonText = strings.buttons.continue,
 }: SuccessPopupProps) => {
   if (!isOpen) return null;
 

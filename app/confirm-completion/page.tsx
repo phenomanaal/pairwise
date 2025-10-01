@@ -5,6 +5,7 @@ import Navbar from '@/app/components/Navbar';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useRouter } from 'next/navigation';
 import Button from '../components/ui/Button';
+import { strings } from '@/app/utils/strings';
 
 export default function ConfirmCompletionPage() {
   const router = useRouter();
@@ -23,11 +24,11 @@ export default function ConfirmCompletionPage() {
       children: (
         <div>
           <p className="pb-6">
-            Please confirm that you have downloaded all results files. Click back to return to the results download screen, or confirm to continue the clean up and exit this PairWise session.
+            {strings.instructions.confirmDownloadComplete}
           </p>
           <div className="flex flex-col gap-4">
             <Button onClick={handleBack} variant="secondary" fullWidth>
-              Back
+              {strings.buttons.back}
             </Button>
             <Button onClick={handleConfirm} fullWidth>
               Confirm

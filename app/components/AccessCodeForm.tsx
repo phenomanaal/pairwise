@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import FormInput from './ui/FormInput';
 import Button from './ui/Button';
 import ErrorMessage from './ui/ErrorMessage';
+import { strings } from '@/app/utils/strings';
 
 interface AccessCodeFormProps {
   redirectPath?: string;
@@ -22,7 +23,7 @@ const AccessCodeForm = ({
     e.preventDefault();
 
     if (!accessCode) {
-      setError('Please fill in access code');
+      setError(strings.errors.pleaseFillAccessCode);
       return;
     }
 
@@ -47,14 +48,14 @@ const AccessCodeForm = ({
       if (response.ok) {
         router.push(redirectPath);
       } else {
-        if (data.message === 'Invalid access code. Please try again.') { 
-          setError('Retry access code TBD');
+        if (data.message === 'Invalid access code. Please try again.') {
+          setError(strings.errors.retryAccessCode);
         } else {
-          setError(data.message || 'An error occurred. Please try again.');
+          setError(data.message || strings.errors.generic);
          }
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(strings.errors.unexpected);
     } finally {
       setLoading(false);
     }
@@ -63,15 +64,15 @@ const AccessCodeForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <p className="pb-6">
-        Check email for access code TBD
+        {strings.instructions.checkEmailForAccessCode}
       </p>
 
       <FormInput
         id="access-code"
-        label="Access Code"
+        label={strings.labels.accessCode}
         value={accessCode}
         onChange={(e) => setAccessCode(e.target.value)}
-        placeholder="Enter access code"
+        placeholder={strings.placeholders.accessCode}
         autoComplete="one-time-code"
         required
       />
@@ -79,7 +80,7 @@ const AccessCodeForm = ({
       <ErrorMessage message={error} />
 
       <Button type="submit" disabled={loading} fullWidth>
-        {loading ? 'Confirming Access Code...' : 'Login'}
+        {loading ? strings.processing.confirmingAccessCode : strings.buttons.login}
       </Button>
     </form>
   );

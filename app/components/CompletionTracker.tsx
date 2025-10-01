@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from './ui/Button';
+import { strings, formatString } from '@/app/utils/strings';
 
 interface CompletionTrackerProps {
   completedMatches: number;
@@ -20,10 +21,10 @@ const CompletionTracker: React.FC<CompletionTrackerProps> = ({
         <div className="font-medium text-gray-700 mb-4">
           {allMatchesCompleted ? (
             <div>
-              <p className="mb-4">List Matching is complete. Please Continue to obtain the complete list match output data.</p>
+              <p className="mb-4">{strings.success.matchingCompleteAll}</p>
             </div>
           ) : (
-            <p>{completedMatches} of {totalMatches} Matches Complete</p>
+            <p>{formatString(strings.status.matchesComplete, { count: String(completedMatches), total: String(totalMatches) })}</p>
           )}
         </div>
 
@@ -33,11 +34,11 @@ const CompletionTracker: React.FC<CompletionTrackerProps> = ({
           className="px-8"
           title={
             !allMatchesCompleted
-              ? 'Please complete all list matches in order to continue'
+              ? strings.confirmations.completionTooltip
               : ''
           }
         >
-          Continue
+          {strings.buttons.continue}
         </Button>
       </div>
     </div>

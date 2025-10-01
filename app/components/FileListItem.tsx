@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from './ui/Button';
 import { FileData } from './CurrentFilesList';
+import { strings, formatString } from '@/app/utils/strings';
 
 interface FileListItemProps {
   file: FileData;
@@ -45,8 +46,8 @@ const FileListItem: React.FC<FileListItemProps> = ({
     if (file.matchStatus) {
       return (
         <div className="ml-4 flex items-center">
-          <span className="text-green-600 font-semibold mr-3">Completed</span>
-          <Button onClick={() => onViewResults(file)}>Results Overview</Button>
+          <span className="text-green-600 font-semibold mr-3">{strings.status.completed}</span>
+          <Button onClick={() => onViewResults(file)}>{strings.buttons.viewResults}</Button>
         </div>
       );
     }
@@ -55,13 +56,13 @@ const FileListItem: React.FC<FileListItemProps> = ({
       case 'active':
         return (
           <Button onClick={handleMatchingClick} className="ml-4">
-            Begin Matching
+            {strings.buttons.beginMatching}
           </Button>
         );
       case 'pending':
         return (
           <Button variant="disabled" className="ml-4">
-            Begin Matching
+            {strings.buttons.beginMatching}
           </Button>
         );
       default:
@@ -73,9 +74,9 @@ const FileListItem: React.FC<FileListItemProps> = ({
     <li className="flex items-center">
       <span className="text-gray-700">
         {file.fileType === 'voter'
-          ? 'Voter File: '
+          ? strings.labels.voterFile
           : file.fileType === 'external'
-            ? `External (${getExternalFileTypeDisplay(file.externalFileType)}): `
+            ? formatString(strings.labels.external, { type: getExternalFileTypeDisplay(file.externalFileType) })
             : `${file.fileType}: `}
       </span>
       <span className="ml-2 italic text-gray-600">{file.fileName}</span>

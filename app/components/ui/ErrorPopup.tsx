@@ -1,5 +1,6 @@
 'use client';
 import Button from './Button';
+import { strings } from '@/app/utils/strings';
 
 interface ErrorPopupProps {
   isOpen: boolean;
@@ -14,7 +15,7 @@ const ErrorPopup = ({
   title,
   message,
   onContinue,
-  buttonText = 'Continue',
+  buttonText = strings.buttons.continue,
 }: ErrorPopupProps) => {
   if (!isOpen) return null;
 
