@@ -9,6 +9,7 @@ common:
 # Error Messages
 errors:
   generic: "An error occurred. Please try again."
+  invalidCsv: "Invalid CSV format: Missing required columns: "
   unexpected: "An unexpected error occurred"
   unexpectedWithDetail: "An unexpected error occurred: {error}"
   serverStatus: "Server responded with status {status}"
@@ -97,6 +98,7 @@ buttons:
   submitFile: "Submit File"
   finishedUploading: "Finished Uploading External Files"
   downloadResults: "Download Results"
+  downloadAgain: "Download Again"
   beginMatching: "Begin Matching"
   viewResults: "View Results"
   yes: "Yes"

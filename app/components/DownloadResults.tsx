@@ -139,6 +139,10 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
   const handleDownloadComplete = () => {
     setShowSuccessPopup(false);
 
+    // Check if this was a re-download (already had downloadStatus: true)
+    const currentResult = results.find((r) => r.id === currentDownloadId);
+    const wasAlreadyDownloaded = currentResult?.downloadStatus === true;
+
     const updatedResults = results.map((result) => {
       if (result.id === currentDownloadId) {
         return {
@@ -150,7 +154,10 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
       return result;
     });
 
-    const newDownloadedCount = downloadedCount + 1;
+    // Only increment counter if this was a first-time download
+    const newDownloadedCount = wasAlreadyDownloaded
+      ? downloadedCount
+      : downloadedCount + 1;
     setDownloadedCount(newDownloadedCount);
 
     const allCompleted = newDownloadedCount === totalDownloads;
@@ -220,10 +227,15 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
                           {strings.buttons.downloadResults}
                         </Button>
                       ) : (
-                        <div className="ml-4 flex items-center">
+                        <div className="ml-4 flex items-center gap-3">
                           <span className="text-green-600 font-semibold">
                             {strings.status.downloadCompleteStatus}
                           </span>
+                          <Button
+                            onClick={() => handleDownload(result.id)}
+                          >
+                            {strings.buttons.downloadAgain}
+                          </Button>
                         </div>
                       )}
                     </div>

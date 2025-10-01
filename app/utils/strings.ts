@@ -6,6 +6,7 @@ interface Strings {
   };
   errors: {
     generic: string;
+    invalidCsv: string;
     unexpected: string;
     unexpectedWithDetail: string;
     serverStatus: string;
@@ -77,6 +78,7 @@ interface Strings {
     submitFile: string;
     finishedUploading: string;
     downloadResults: string;
+    downloadAgain: string;
     beginMatching: string;
     viewResults: string;
     yes: string;
@@ -112,6 +114,7 @@ export const strings: Strings = {
   },
   errors: {
     generic: "An error occurred. Please try again.",
+    invalidCsv: "Invalid CSV format: Missing required columns: ",
     unexpected: "An unexpected error occurred",
     unexpectedWithDetail: "An unexpected error occurred: {error}",
     serverStatus: "Server responded with status {status}",
@@ -183,6 +186,7 @@ export const strings: Strings = {
     submitFile: "Submit File",
     finishedUploading: "Finished Uploading External Files",
     downloadResults: "Download Results",
+    downloadAgain: "Download Again",
     beginMatching: "Begin Matching",
     viewResults: "View Results",
     yes: "Yes",

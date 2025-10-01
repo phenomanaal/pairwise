@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '../components/ui/Button';
 import FileSelect from '../components/ui/FileSelect';
+import { strings, formatString } from '@/app/utils/strings';
+
 
 export default function VoterFilePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -51,8 +53,14 @@ export default function VoterFilePage() {
         setMsg('Upload Complete');
         setMsgType('success');
       } else {
-        await response.json();
-        setMsg('Voter file error TBD. Please retry with a valid voter file.');
+        const data = await response.json();
+
+        if (response.status === 400 && data.missingColumns && data.missingColumns.length > 0) {
+          const missingColsList = data.missingColumns.join(', ');
+          setMsg(`${strings.errors.invalidCsv} ${missingColsList}`);
+        } else {
+          setMsg(data.message || 'Voter file error TBD. Please retry with a valid voter file.');
+        }
         setMsgType('error');
       }
     } catch (error) {

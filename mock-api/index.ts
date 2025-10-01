@@ -65,6 +65,9 @@ interface LoginPayload {
 }
 
 const REQUIRED_COLUMNS: Record<string, string[]> = {
+  'voter-file': [
+    'name','address','city','state','DOB','place_of_birth'
+  ],
   'state-dept-corrections-felons-list': [
     'name',
     'address',
@@ -121,7 +124,7 @@ const validateCSVColumns = async (
         if (!headersParsed) {
           headers = Object.keys(record);
           headersParsed = true;
-          parser.end(); // We only need the headers
+          parser.end();
         }
       }
     });
@@ -381,8 +384,13 @@ server.post(
     for await (const part of parts) {
       if (part.type === 'file') {
         fileName = part.filename;
-        
-        // Save file temporarily for validation
+
+        if (!fileName.toLowerCase().endsWith('.csv')) {
+          return reply.status(400).send({
+            message: 'Only CSV files are allowed',
+          });
+        }
+
         tempFilePath = `./temp_${Date.now()}_${fileName}`;
         const writeStream = createWriteStream(tempFilePath);
         await pipeline(part.file, writeStream);
@@ -400,7 +408,6 @@ server.post(
     }
 
     if (!fileType) {
-      // Clean up temp file if it exists
       if (tempFilePath && fs.existsSync(tempFilePath)) {
         fs.unlinkSync(tempFilePath);
       }
@@ -418,9 +425,9 @@ server.post(
       });
     }
 
-    if (fileType === 'external' && externalFileType) {
-      const requiredColumns = REQUIRED_COLUMNS[externalFileType];
-      
+    if (fileType === 'voter') {
+      const requiredColumns = REQUIRED_COLUMNS['voter-file'];
+
       if (requiredColumns && tempFilePath) {
         try {
           const validation = await validateCSVColumns(tempFilePath, requiredColumns);
@@ -429,7 +436,7 @@ server.post(
             if (fs.existsSync(tempFilePath)) {
               fs.unlinkSync(tempFilePath);
             }
-            
+
             return reply.status(400).send({
               message: 'Invalid CSV format: Missing required columns',
               missingColumns: validation.missingColumns,
@@ -441,7 +448,7 @@ server.post(
           if (fs.existsSync(tempFilePath)) {
             fs.unlinkSync(tempFilePath);
           }
-          
+
           return reply.status(400).send({
             message: 'Error validating CSV file',
             error: (error as Error).message
@@ -450,7 +457,38 @@ server.post(
       }
     }
 
-    // Clean up temp file after validation
+    if (fileType === 'external' && externalFileType) {
+      const requiredColumns = REQUIRED_COLUMNS[externalFileType];
+
+      if (requiredColumns && tempFilePath) {
+        try {
+          const validation = await validateCSVColumns(tempFilePath, requiredColumns);
+          console.log(validation)
+          if (!validation.valid) {
+            if (fs.existsSync(tempFilePath)) {
+              fs.unlinkSync(tempFilePath);
+            }
+
+            return reply.status(400).send({
+              message: 'Invalid CSV format: Missing required columns',
+              missingColumns: validation.missingColumns,
+              foundColumns: validation.foundColumns,
+              requiredColumns: requiredColumns
+            });
+          }
+        } catch (error) {
+          if (fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+          }
+
+          return reply.status(400).send({
+            message: 'Error validating CSV file',
+            error: (error as Error).message
+          });
+        }
+      }
+    }
+
     if (tempFilePath && fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
     }
