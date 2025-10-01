@@ -1,0 +1,17 @@
+Code\x20H  3687 manaalsyed   42u  IPv4 0x14b3ce037e546cca      0t0    TCP 127.0.0.1:63469->127.0.0.1:3756 (ESTABLISHED)
+Code\x20H  3948 manaalsyed   16u  IPv4 0xb54b8169fe61eda8      0t0    TCP 127.0.0.1:3756 (LISTEN)
+Code\x20H  3948 manaalsyed   18u  IPv4 0x2b258c00607f5594      0t0    TCP 127.0.0.1:3756->127.0.0.1:63469 (ESTABLISHED)
+Google     5822 manaalsyed   93u  IPv4 0xf24f8a53587bbe24      0t0    UDP *:*
+com.docke  6199 manaalsyed   66u  IPv4 0xc30729b0215b4a02      0t0   ICMP *:*
+com.docke  6199 manaalsyed   67u  IPv6 0xdc720e2199311789      0t0 ICMPV6 *:*
+com.docke  6199 manaalsyed  131u  IPv6 0xccf22512203f5f90      0t0    TCP *:8080 (LISTEN)
+Google    11778 manaalsyed   19u  IPv6 0x62fad67cb30d3655      0t0    TCP [2607:fb91:2d0b:87f0:2d82:7e29:c12c:f466]:63748->[2607:f8b0:4004:c09::bc]:5228 (ESTABLISHED)
+Google    11778 manaalsyed   24u  IPv4 0x908edc36cf270bec      0t0    TCP 192.168.12.121:63782->18.97.36.44:443 (ESTABLISHED)
+node      12893 manaalsyed   19u  IPv4 0x70ca41e7d4190c47      0t0    TCP *:3001 (LISTEN)
+Dropbox   85190 manaalsyed  119u  IPv6 0xb118f5241df0262d      0t0    TCP *:17500 (LISTEN)
+Dropbox   85190 manaalsyed  124u  IPv4 0x85864aa1f2ad11fe      0t0    TCP *:17500 (LISTEN)
+Dropbox   85190 manaalsyed  125u  IPv4 0x8c3bf8e9755aff86      0t0    UDP *:17500
+Dropbox   85190 manaalsyed  131u  IPv4 0x74261d0cd90a2a68      0t0    TCP 127.0.0.1:17600 (LISTEN)
+Dropbox   85190 manaalsyed  136u  IPv4 0xefa0dafbced1f12e      0t0    TCP 127.0.0.1:17603 (LISTEN)
+Dropbox   85190 manaalsyed  187u  IPv4 0x9c1dc84a933580c4      0t0    TCP 192.168.12.121:62890->162.125.21.3:443 (ESTABLISHED)
+Dropbox   85190 manaalsyed  217u  IPv4 0x9b61baef7250c4d9      0t0    TCP 192.168.12.121:62976->162.125.21.2:443 (ESTABLISHED)

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Button from './ui/Button';
 import ProcessingPopup from './ui/ProcessingPopup';
 import SuccessPopup from './ui/SuccessPopup';
+import ErrorPopup from './ui/ErrorPopup';
 
 interface MatchResult {
   fileType: string;
@@ -34,6 +35,8 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
   const [currentDownloadId, setCurrentDownloadId] = useState<string | null>(
     null,
   );
+  const [showErrorPopup, setShowErrorPopup] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const typeMap: { [key: string]: string } = {
     'state-dept-corrections-felons-list':
@@ -47,6 +50,13 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
   const getExternalFileTypeDisplay = (type: string | null): string => {
     if (!type) return '';
     return typeMap[type] || type;
+  };
+
+  const getOutputFileName = (voterFileName: string, externalFileName: string): string => {
+    // Remove file extensions if present
+    const voterBase = voterFileName.replace(/\.[^/.]+$/, '');
+    const externalBase = externalFileName.replace(/\.[^/.]+$/, '');
+    return `${voterBase}-${externalBase}-comparison.csv`;
   };
 
   const fetchResults = async () => {
@@ -120,6 +130,8 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
     } catch (error) {
       console.error('Error during download:', error);
       setIsProcessing(false);
+      setErrorMessage('Failed to download file. Please try again.');
+      setShowErrorPopup(true);
     }
   };
 
@@ -155,6 +167,9 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
     router.push('/confirm-completion');
   };
 
+  const voterFile = results.find((r) => r.fileType === 'voter');
+  const voterFileName = voterFile?.fileName || '';
+
   if (generating) {
     return (
       <div className="flex flex-col items-center justify-center py-10">
@@ -182,36 +197,45 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
         <>
           <ul className="space-y-4 pt-5 text-sm">
             {results.map((result, index) => (
-              <li key={index} className="flex items-center">
-                <span className="text-gray-700">
-                  {result.fileType === 'voter'
-                    ? 'Voter File: '
-                    : result.fileType === 'external'
-                      ? `External (${getExternalFileTypeDisplay(result.externalFileType)}): `
-                      : `${result.fileType}: `}
-                </span>
-                <span className="ml-2 italic text-gray-600">
-                  {result.fileName}
-                </span>
-                {result.fileType === 'external' ? (
-                  <div className="ml-auto">
-                    {!result.downloadStatus ? (
-                      <Button
-                        onClick={() => handleDownload(result.id)}
-                        className="ml-4"
-                      >
-                        Download Results
-                      </Button>
-                    ) : (
-                      <div className="ml-4 flex items-center">
-                        <span className="text-green-600 font-semibold">
-                          Download Complete
-                        </span>
-                      </div>
-                    )}
+              <li key={index} className="flex flex-col">
+                <div className="flex items-center">
+                  <span className="text-gray-700">
+                    {result.fileType === 'voter'
+                      ? 'Voter File: '
+                      : result.fileType === 'external'
+                        ? `External (${getExternalFileTypeDisplay(result.externalFileType)}): `
+                        : `${result.fileType}: `}
+                  </span>
+                  <span className="ml-2 italic text-gray-600">
+                    {result.fileName}
+                  </span>
+                  {result.fileType === 'external' ? (
+                    <div className="ml-auto">
+                      {!result.downloadStatus ? (
+                        <Button
+                          onClick={() => handleDownload(result.id)}
+                          className="ml-4"
+                        >
+                          Download Results
+                        </Button>
+                      ) : (
+                        <div className="ml-4 flex items-center">
+                          <span className="text-green-600 font-semibold">
+                            Download Complete
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span></span>
+                  )}
+                </div>
+                {result.fileType === 'external' && (
+                  <div className="ml-4 mt-1">
+                    <span className="text-gray-600 text-xs">
+                      Output File: {getOutputFileName(voterFileName, result.fileName)}
+                    </span>
                   </div>
-                ) : (
-                  <span></span>
                 )}
               </li>
             ))}
@@ -246,6 +270,13 @@ const DownloadResults = ({ onAllDownloadsComplete }: DownloadResultsProps) => {
         title="Download Complete"
         message="The file has been successfully downloaded."
         onContinue={handleDownloadComplete}
+      />
+
+      <ErrorPopup
+        isOpen={showErrorPopup}
+        title="Download Error"
+        message={errorMessage}
+        onContinue={() => setShowErrorPopup(false)}
       />
     </div>
   );

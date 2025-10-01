@@ -5,6 +5,9 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { pipeline } from 'stream/promises';
+import { createWriteStream } from 'fs';
+import { parse } from 'csv-parse';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -60,6 +63,99 @@ interface LoginPayload {
   username: string;
   oneTimePassword: string;
 }
+
+const REQUIRED_COLUMNS: Record<string, string[]> = {
+  'state-dept-corrections-felons-list': [
+    'name',
+    'address',
+    'city',
+    'state',
+    'DOB',
+    'place_of_birth'
+  ],
+  'dept-of-vital-stats-deceased-list': [
+    'name',
+    'DOB',
+    'DOD',
+    'SSN',
+    'last_known_address'
+  ],
+  'change-of-address-record': [
+    'name',
+    'old_address',
+    'new_address',
+    'city',
+    'state',
+    'zip',
+    'move_date'
+  ],
+  'other-voter-file': [
+    'voter_id',
+    'name',
+    'address',
+    'city',
+    'state',
+    'zip',
+    'registration_date'
+  ]
+};
+
+const validateCSVColumns = async (
+  filePath: string,
+  requiredColumns: string[]
+): Promise<{ valid: boolean; missingColumns?: string[]; foundColumns?: string[] }> => {
+  return new Promise((resolve, reject) => {
+    const parser = parse({
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      relax_column_count: true
+    });
+
+    let headers: string[] = [];
+    let headersParsed = false;
+
+    parser.on('readable', function () {
+      let record;
+      while ((record = parser.read()) !== null) {
+        if (!headersParsed) {
+          headers = Object.keys(record);
+          headersParsed = true;
+          parser.end(); // We only need the headers
+        }
+      }
+    });
+
+    parser.on('error', (err) => {
+      reject(err);
+    });
+
+    parser.on('end', () => {
+      const normalizedHeaders = headers.map(h => h.trim().toLowerCase());
+      const normalizedRequired = requiredColumns.map(c => c.trim().toLowerCase());
+      
+      const missingColumns = normalizedRequired.filter(
+        col => !normalizedHeaders.includes(col)
+      );
+
+      if (missingColumns.length > 0) {
+        resolve({
+          valid: false,
+          missingColumns: missingColumns,
+          foundColumns: headers
+        });
+      } else {
+        resolve({
+          valid: true,
+          foundColumns: headers
+        });
+      }
+    });
+
+    const readStream = fs.createReadStream(filePath);
+    readStream.pipe(parser);
+  });
+};
 
 const readJsonFile = (filePath: string): JsonData => {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
@@ -183,7 +279,6 @@ server.post(
     });
   },
 );
-
 server.post(
   '/pairwise/match',
   {
@@ -192,6 +287,15 @@ server.post(
   async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body;
     const { id } = request.body as { id: string };
+
+    const randomValue = Math.random();
+    if (randomValue < 0.5) {
+      console.log(`Simulated match error (random value: ${randomValue})`);
+      return reply.status(500).send({
+        message: 'An error occurred during the matching process. Please try again.',
+        error: 'Simulated processing error'
+      });
+    }
 
     const parts = request.parts();
     let fileData: FileData[] = [];
@@ -230,6 +334,14 @@ server.post(
     const parts = request.parts();
     let fileData: FileData[] = [];
     try {
+      const randomValue = Math.random();
+      if (randomValue < 0.5) {
+        console.log(`Simulated download error (random value: ${randomValue})`);
+        return reply.status(500).send({
+          message: 'An error occurred during the download process. Please try again.',
+          error: 'Simulated processing error'
+        });
+      }
       const data = await fs.promises.readFile('data.json', 'utf8');
       fileData = JSON.parse(data) as FileData[];
 
@@ -264,10 +376,16 @@ server.post(
     let externalFileType: string | null = null;
     let matchStatus = false;
     let downloadStatus = false;
+    let tempFilePath: string = '';
 
     for await (const part of parts) {
       if (part.type === 'file') {
         fileName = part.filename;
+        
+        // Save file temporarily for validation
+        tempFilePath = `./temp_${Date.now()}_${fileName}`;
+        const writeStream = createWriteStream(tempFilePath);
+        await pipeline(part.file, writeStream);
       }
 
       if (part.type === 'field' && part.fieldname === 'fileType') {
@@ -282,15 +400,59 @@ server.post(
     }
 
     if (!fileType) {
+      // Clean up temp file if it exists
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       return reply.status(400).send({
         message: 'File type is required',
       });
     }
 
     if (!fileName) {
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       return reply.status(400).send({
         message: 'No file was uploaded',
       });
+    }
+
+    if (fileType === 'external' && externalFileType) {
+      const requiredColumns = REQUIRED_COLUMNS[externalFileType];
+      
+      if (requiredColumns && tempFilePath) {
+        try {
+          const validation = await validateCSVColumns(tempFilePath, requiredColumns);
+          console.log(validation)
+          if (!validation.valid) {
+            if (fs.existsSync(tempFilePath)) {
+              fs.unlinkSync(tempFilePath);
+            }
+            
+            return reply.status(400).send({
+              message: 'Invalid CSV format: Missing required columns',
+              missingColumns: validation.missingColumns,
+              foundColumns: validation.foundColumns,
+              requiredColumns: requiredColumns
+            });
+          }
+        } catch (error) {
+          if (fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+          }
+          
+          return reply.status(400).send({
+            message: 'Error validating CSV file',
+            error: (error as Error).message
+          });
+        }
+      }
+    }
+
+    // Clean up temp file after validation
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
     }
 
     try {

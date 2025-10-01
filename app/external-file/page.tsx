@@ -113,7 +113,7 @@ export default function ExternalFilePage() {
           <Box
             sections={[
               {
-                title: 'Error Uploading External File',
+                title: <span className="text-red-500">Error Uploading External File</span>,
                 children: (
                   <div>
                     <p className="pb-4">{msg}</p>
@@ -234,6 +234,11 @@ export default function ExternalFilePage() {
                     <strong>{externalFileTypes.find(t => t.value === fileType)?.label}:</strong> {fileType}.csv
                   </div>
                 ))}
+              </div>
+              <div className="mt-6">
+                <Button onClick={handleContinueToMatching} fullWidth>
+                  Continue to Matching
+                </Button>
               </div>
             </div>
           )}

@@ -4,8 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ProcessingPopup from './ui/ProcessingPopup';
 import SuccessPopup from './ui/SuccessPopup';
+import ErrorPopup from './ui/ErrorPopup';
 import MatchingFilesView from './MatchingFilesViews';
 import ResultsOverview from './ResultsOverview';
+import Box from './Box';
+import Button from './ui/Button';
+import Navbar from './Navbar';
+import ProtectedRoute from './ProtectedRoute';
 
 export interface FileData {
   id: string;
@@ -40,6 +45,7 @@ const CurrentFilesList = ({
   const [showResultsOverview, setShowResultsOverview] =
     useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
+  const [showMatchError, setShowMatchError] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -157,7 +163,9 @@ const CurrentFilesList = ({
       });
 
       if (!response.ok) {
-        throw new Error('Matching API request failed');
+        setIsProcessing(false);
+        setShowMatchError(true);
+        return;
       }
 
       setTimeout(() => {
@@ -167,6 +175,7 @@ const CurrentFilesList = ({
     } catch (error) {
       console.error('Error during matching:', error);
       setIsProcessing(false);
+      setShowMatchError(true);
     }
   };
 
@@ -213,6 +222,11 @@ const CurrentFilesList = ({
     setSelectedFile(null);
   };
 
+  const handleRetryMatching = () => {
+    setShowMatchError(false);
+  };
+
+
   return (
     <div className="relative">
       {!showResultsOverview ? (
@@ -244,6 +258,13 @@ const CurrentFilesList = ({
         message="The matching process has completed successfully."
         onContinue={handleContinue}
       />
+
+    <ErrorPopup
+      isOpen={showMatchError}
+      title="Server Error"
+      message="There was an error with the matching process. Try again in a few moments..."
+      onContinue={handleRetryMatching}
+    />
     </div>
   );
 };
