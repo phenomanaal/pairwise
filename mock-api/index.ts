@@ -292,7 +292,7 @@ server.post(
     const { id } = request.body as { id: string };
 
     const randomValue = Math.random();
-    if (randomValue < 0.5) {
+    if (randomValue < 0.75) {
       console.log(`Simulated match error (random value: ${randomValue})`);
       return reply.status(500).send({
         message: 'An error occurred during the matching process. Please try again.',
@@ -338,7 +338,7 @@ server.post(
     let fileData: FileData[] = [];
     try {
       const randomValue = Math.random();
-      if (randomValue < 0.5) {
+      if (randomValue < 0.75) {
         console.log(`Simulated download error (random value: ${randomValue})`);
         return reply.status(500).send({
           message: 'An error occurred during the download process. Please try again.',

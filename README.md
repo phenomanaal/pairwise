@@ -67,13 +67,17 @@ access code: 098675
 
 notes:
 complete happy path! no download all button, have output filename generated so that it's clear that it's different from the external file name
+
 token shake are you done? if so then --> url to S3 bucket
 security --> access control is normally done through filename cryptography
 in this case --> predictable url, giving to you for about a minute, download, finish download (if you don't finish within 5 minutes) short lived link
 downloading specific file --> this is the specific file
+
 errors --> all errors (unhappy paths)
 matching error, download errors, download again
+
 uploading input files, file validation (filetype, empty file, lacking in fields) if there is communication error between client and server, communicate oops (try again)
+
 separetly if file didn't validate --> invalid file with link to static page (user help on what file contents should be)
 milestone & metric: various unhappy paths
 strings files: yaml with strings for placeholders for different messages
